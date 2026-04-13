@@ -149,7 +149,7 @@ export default function InterviewPage() {
   // Proctoring Setup Effect
   useEffect(() => {
     // Ideally candidateId would come from logged-in user context
-    const mockCandidateId = 1;
+    const mockCandidateId = 3;
 
     // Setup Socket
     const socket = io(PROCTORING_SERVER_URL, { transports: ["websocket", "polling"] });

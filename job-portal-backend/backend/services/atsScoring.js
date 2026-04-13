@@ -44,9 +44,8 @@ function scoreResumeEntities(parsedEntities, resumeText = '', jobDescription = '
     // Genuine textual semantic overlap
     const matchRatio = matchCount / validJobWords.length;
     
-    // 35% overlap of purely specific job words is statistically very strong.
-    // Anything <10% is extremely poor. 
-    const textScore = (matchRatio / 0.35) * 60; 
+    // 25% overlap of purely specific job words is statistically strong enough now.
+    const textScore = (matchRatio / 0.25) * 60; 
     score += Math.min(60, textScore);
   } else {
     // Fallback if description is empty
@@ -74,10 +73,10 @@ function scoreResumeEntities(parsedEntities, resumeText = '', jobDescription = '
       score += (matchedTitleWords / titleWords.length) * 15;
   }
 
-  // Extreme penalization if they clearly don't match Senior requirements
+  // Moderate penalization if they clearly don't match Senior requirements
   if (titleRaw.includes('senior') || titleRaw.includes('lead') || titleRaw.includes('manager')) {
       if (!resumeWordSet.has('lead') && !resumeWordSet.has('senior') && !resumeWordSet.has('management') && !resumeWordSet.has('architect')) {
-        score -= 25; 
+        score -= 10; 
       }
   }
   
