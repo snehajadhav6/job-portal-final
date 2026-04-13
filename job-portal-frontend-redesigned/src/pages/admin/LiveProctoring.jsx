@@ -51,8 +51,107 @@ export default function LiveProctoring() {
       );
     });
 
-    return () => socket.disconnect();
+    // WebRTC Signaling handlers for Admin
+    socket.on("webrtc-answer", async ({ candidateId, answer }) => {
+      // Find the candidate's actual candidate_id from their socket ID if needed, 
+      // but according to the socket relay, backend sends candidateId as candidate socket ID, and admin maps it to candidate ID? 
+      // Actually backend `candidateId` from answer is `socket.id`. It is better to map using the actual Candidate ID. Let's find pc.
+      // Wait, we need to make sure we parse the candidateId properly.
+      const pc = getPeerConnectionForCandidate(candidateId);
+      if (pc) {
+        try { 
+          await pc.setRemoteDescription(new RTCSessionDescription(answer)); 
+          // add queued candidates
+          if (pc.iceQueue) {
+            pc.iceQueue.forEach(cand => pc.addIceCandidate(new RTCIceCandidate(cand)).catch(e=>console.error(e)));
+            pc.iceQueue = [];
+          }
+        } catch(e){
+          console.error("Error setting remote answer", e);
+        }
+      }
+    });
+
+    socket.on("webrtc-ice-candidate", async ({ candidateId, candidate }) => {
+      const pc = getPeerConnectionForCandidate(candidateId);
+      if (pc && candidate) {
+        if (pc.remoteDescription && pc.remoteDescription.type) {
+          try { await pc.addIceCandidate(new RTCIceCandidate(candidate)); } catch(e){ console.error("ICE Admin Error", e); }
+        } else {
+          pc.iceQueue = pc.iceQueue || [];
+          pc.iceQueue.push(candidate);
+        }
+      }
+    });
+
+    return () => {
+      Object.values(peerConnections.current).forEach(pc => pc.close());
+      socket.disconnect();
+    };
   }, []);
+
+  // WebRTC Setup logic
+  const peerConnections = useRef({});
+
+  // helper to get or create pc
+  const getPeerConnectionForCandidate = (candId) => {
+    return peerConnections.current[candId];
+  };
+
+  const initiateWebRTC = async (candidateId) => {
+    if (!socketRef.current || peerConnections.current[candidateId]) return;
+
+    const pc = new RTCPeerConnection({
+      iceServers: [{ urls: "stun:stun.l.google.com:19302" }]
+    });
+
+    peerConnections.current[candidateId] = pc;
+
+    pc.onicecandidate = (event) => {
+      if (event.candidate) {
+        socketRef.current.emit("webrtc-ice-candidate", { candidateId, candidate: event.candidate });
+      }
+    };
+
+    pc.ontrack = (event) => {
+      console.log("Admin got a track for", candidateId);
+      const videoEl = document.getElementById(`video-${candidateId}`);
+      if (videoEl) {
+        if (event.streams && event.streams[0]) {
+          videoEl.srcObject = event.streams[0];
+        } else {
+          let stream = videoEl.srcObject;
+          if (!stream) {
+            stream = new MediaStream();
+            videoEl.srcObject = stream;
+          }
+          stream.addTrack(event.track);
+        }
+      }
+    };
+
+    // Before creating offer, we must add a transceiver or the offer won't contain video.
+    pc.addTransceiver("video", { direction: "recvonly" });
+    pc.addTransceiver("audio", { direction: "recvonly" });
+
+    try {
+      const offer = await pc.createOffer();
+      await pc.setLocalDescription(offer);
+      socketRef.current.emit("webrtc-offer", { candidateId, offer });
+    } catch (e) {
+      console.error("WebRTC Error initiating:", e);
+    }
+  };
+
+  // Run WebRTC initiation for all initially active candidates
+  useEffect(() => {
+    candidates.forEach(c => {
+      if (c.status === "ACTIVE" && !peerConnections.current[c.candidate_id]) {
+        // Wait briefly for DOM to render the <video> tags
+        setTimeout(() => initiateWebRTC(c.candidate_id), 1000);
+      }
+    });
+  }, [candidates]);
 
   const sendWarning = async (candidateId, sessionId) => {
     try {
@@ -134,9 +233,22 @@ export default function LiveProctoring() {
                   </span>
                 </div>
                 
-                {/* Mock Video Stream Area */}
-                <div style={{ background: "#222", height: "180px", borderRadius: "8px", marginBottom: "12px", display: "flex", alignItems: "center", justifyContent: "center", color: "#666" }}>
-                  {c.status === "ACTIVE" ? <span style={{color: '#4caf50', display: 'flex', alignItems: 'center', gap: '6px'}}><span style={{display: 'inline-block', width: '8px', height: '8px', borderRadius: '50%', background: '#4caf50', animation: 'pulse 2s infinite'}}></span> Live Webcam Stream</span> : "Stream Closed"}
+                {/* WebRTC Video Stream Area */}
+                <div style={{ background: "#000", height: "180px", borderRadius: "8px", marginBottom: "12px", display: "flex", alignItems: "center", justifyContent: "center", color: "#666", overflow: "hidden", position: "relative" }}>
+                  {c.status === "ACTIVE" ? (
+                    <>
+                      <video 
+                        id={`video-${c.candidate_id}`} 
+                        autoPlay 
+                        playsInline 
+                        muted
+                        style={{ width: "100%", height: "100%", objectFit: "cover" }}
+                      />
+                      <span style={{ position: "absolute", top: "8px", left: "8px", background: "rgba(0,0,0,0.6)", padding: "2px 6px", borderRadius: "4px", color: '#4caf50', display: 'flex', alignItems: 'center', gap: '6px', fontSize: "0.8rem" }}>
+                        <span style={{display: 'inline-block', width: '8px', height: '8px', borderRadius: '50%', background: '#4caf50', animation: 'pulse 2s infinite'}}></span> Live
+                      </span>
+                    </>
+                  ) : "Stream Closed"}
                 </div>
                 
                 <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "10px", marginBottom: "16px", fontSize: "0.9rem" }}>
