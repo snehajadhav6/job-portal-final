@@ -53,6 +53,7 @@ export default function InterviewPage() {
   const [proctoringSessionId, setProctoringSessionId] = useState(null);
   const [warningMessage, setWarningMessage] = useState("");
   const socketRef = useRef(null);
+  const peerConnectionsRef = useRef({}); // WebRTC for Admin
   const modelRef = useRef(null);
   const violationThrottleRef = useRef(0); // Prevent spamming same violation
   const currentQuestion = questions[currentIndex] ?? "";
@@ -148,7 +149,7 @@ export default function InterviewPage() {
   // Proctoring Setup Effect
   useEffect(() => {
     // Ideally candidateId would come from logged-in user context
-    const mockCandidateId = 1; 
+    const mockCandidateId = 1;
 
     // Setup Socket
     const socket = io(PROCTORING_SERVER_URL, { transports: ["websocket", "polling"] });
@@ -166,6 +167,51 @@ export default function InterviewPage() {
     socket.on("terminate-interview", (data) => {
       alert(`Interview Terminated: ${data.reason}`);
       navigate("/");
+    });
+
+    // WebRTC connection handlers
+    socket.on("webrtc-offer", async ({ adminId, offer }) => {
+      try {
+        const pc = new RTCPeerConnection({ iceServers: [{ urls: "stun:stun.l.google.com:19302" }] });
+        peerConnectionsRef.current[adminId] = pc;
+
+        // Add our webcam stream to the connection so admin can see it
+        if (mediaStreamRef.current) {
+          mediaStreamRef.current.getTracks().forEach(track => {
+            pc.addTrack(track, mediaStreamRef.current);
+          });
+        }
+
+        pc.onicecandidate = (event) => {
+          if (event.candidate) {
+            socketRef.current.emit("webrtc-ice-candidate", { adminId, candidate: event.candidate, candidateId: mockCandidateId });
+          }
+        };
+
+        await pc.setRemoteDescription(new RTCSessionDescription(offer));
+        if (pc.iceQueue) {
+          pc.iceQueue.forEach(cand => pc.addIceCandidate(new RTCIceCandidate(cand)).catch(e => console.error(e)));
+          pc.iceQueue = [];
+        }
+        const answer = await pc.createAnswer();
+        await pc.setLocalDescription(answer);
+
+        socketRef.current.emit("webrtc-answer", { adminId, answer, candidateId: mockCandidateId });
+      } catch (e) {
+        console.error("Error setting up WebRTC response:", e);
+      }
+    });
+
+    socket.on("webrtc-ice-candidate", async ({ adminId, candidate }) => {
+      const pc = peerConnectionsRef.current[adminId];
+      if (pc && candidate) {
+        if (pc.remoteDescription && pc.remoteDescription.type) {
+          try { await pc.addIceCandidate(new RTCIceCandidate(candidate)); } catch (e) { console.error("ICE Candidate Error", e); }
+        } else {
+          pc.iceQueue = pc.iceQueue || [];
+          pc.iceQueue.push(candidate);
+        }
+      }
     });
 
     // Start Session API
@@ -213,13 +259,13 @@ export default function InterviewPage() {
 
       try {
         const predictions = await modelRef.current.detect(videoRef.current);
-        
+
         let personCount = 0;
         let mobileDetected = false;
 
         predictions.forEach((prediction) => {
-          if (prediction.class === "person") personCount++;
-          if (prediction.class === "cell phone") mobileDetected = true;
+          if (prediction.class === "person" && prediction.score > 0.85) personCount++;
+          if (prediction.class === "cell phone" && prediction.score > 0.70) mobileDetected = true;
         });
 
         let violationType = null;
@@ -245,6 +291,7 @@ export default function InterviewPage() {
     }, 2000); // Check every 2 seconds
 
     return () => {
+      Object.values(peerConnectionsRef.current).forEach(pc => pc.close());
       socket.disconnect();
       document.removeEventListener("visibilitychange", handleVisibilityChange);
       clearInterval(visionInterval);
@@ -259,7 +306,7 @@ export default function InterviewPage() {
     videoRef.current.srcObject = mediaStreamRef.current;
     videoRef.current
       .play()
-      .catch(() => {});
+      .catch(() => { });
   }, [cameraState]);
 
   useEffect(() => {
@@ -484,7 +531,7 @@ export default function InterviewPage() {
           <p className="question-text">
             {isLoading ? "Retrieving interview questions..." : currentQuestion}
           </p>
-          
+
           {warningMessage && (
             <div style={{ backgroundColor: "#ffebee", color: "#c62828", padding: "10px", borderRadius: "8px", marginTop: "1rem", border: "1px solid #ef5350" }}>
               <strong>⚠️ Proctoring Alert:</strong> {warningMessage}
@@ -520,7 +567,7 @@ export default function InterviewPage() {
                   transcript || currentAnswer ? "transcript-text" : "transcript-empty"
                 }
               >
-              {transcript || currentAnswer || "No transcript available."}
+                {transcript || currentAnswer || "No transcript available."}
               </p>
             </div>
 
