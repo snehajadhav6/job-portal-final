@@ -1,6 +1,12 @@
 import { useEffect, useRef, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { getInterviewQuestions, submitInterview } from "../services/interviewApi";
+import { io } from "socket.io-client";
+import * as tf from "@tensorflow/tfjs";
+import * as cocoSsd from "@tensorflow-models/coco-ssd";
+
+const PROCTORING_SERVER_URL = "http://localhost:5001/candidate";
+const PROCTORING_API_URL = "http://localhost:5001/api/proctoring";
 
 const INTERVIEW_RESULT_STORAGE_KEY = "ai-interview-result";
 
@@ -44,6 +50,11 @@ export default function InterviewPage() {
   const [cameraState, setCameraState] = useState("Loading");
   const [cameraError, setCameraError] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [proctoringSessionId, setProctoringSessionId] = useState(null);
+  const [warningMessage, setWarningMessage] = useState("");
+  const socketRef = useRef(null);
+  const modelRef = useRef(null);
+  const violationThrottleRef = useRef(0); // Prevent spamming same violation
   const currentQuestion = questions[currentIndex] ?? "";
   const currentAnswer = answers[currentIndex]?.answer ?? "";
   const hasCapturedAnswer = Boolean(currentAnswer.trim());
@@ -133,6 +144,112 @@ export default function InterviewPage() {
       }
     };
   }, []);
+
+  // Proctoring Setup Effect
+  useEffect(() => {
+    // Ideally candidateId would come from logged-in user context
+    const mockCandidateId = 1; 
+
+    // Setup Socket
+    const socket = io(PROCTORING_SERVER_URL, { transports: ["websocket", "polling"] });
+    socketRef.current = socket;
+
+    socket.on("connect", () => {
+      socket.emit("join-session", { candidateId: mockCandidateId });
+    });
+
+    socket.on("receive-warning", (data) => {
+      setWarningMessage(data.message);
+      setTimeout(() => setWarningMessage(""), 10000); // Clear after 10s
+    });
+
+    socket.on("terminate-interview", (data) => {
+      alert(`Interview Terminated: ${data.reason}`);
+      navigate("/");
+    });
+
+    // Start Session API
+    fetch(`${PROCTORING_API_URL}/start-session`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ candidateId: mockCandidateId }),
+    })
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.sessionId) setProctoringSessionId(data.sessionId);
+      })
+      .catch((err) => console.error("Error starting proctoring session:", err));
+
+    // Initialize TFJS Model
+    cocoSsd.load().then((loadedModel) => {
+      modelRef.current = loadedModel;
+      console.log("Object detection model loaded.");
+    });
+
+
+    // Tab Switch Listener
+    const handleVisibilityChange = () => {
+      if (document.hidden && proctoringSessionId) {
+        fetch(`${PROCTORING_API_URL}/report-violation`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            candidateId: mockCandidateId,
+            sessionId: proctoringSessionId,
+            violationType: "TAB_SWITCH"
+          })
+        }).catch(console.error);
+        setWarningMessage("Warning: Navigating away from the interview tab is a violation.");
+        setTimeout(() => setWarningMessage(""), 5000);
+      }
+    };
+
+    document.addEventListener("visibilitychange", handleVisibilityChange);
+
+    // AI Vision Detection Loop
+    const visionInterval = setInterval(async () => {
+      if (!modelRef.current || !videoRef.current || !proctoringSessionId) return;
+      if (Date.now() - violationThrottleRef.current < 5000) return; // Wait 5s before posting another AI violation
+
+      try {
+        const predictions = await modelRef.current.detect(videoRef.current);
+        
+        let personCount = 0;
+        let mobileDetected = false;
+
+        predictions.forEach((prediction) => {
+          if (prediction.class === "person") personCount++;
+          if (prediction.class === "cell phone") mobileDetected = true;
+        });
+
+        let violationType = null;
+        if (mobileDetected) violationType = "MOBILE_DETECTED";
+        else if (personCount > 1) violationType = "MULTIPLE_FACES";
+        // To also detect if the face goes missing, you could check if personCount === 0.
+
+        if (violationType) {
+          violationThrottleRef.current = Date.now();
+          fetch(`${PROCTORING_API_URL}/report-violation`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              candidateId: mockCandidateId,
+              sessionId: proctoringSessionId,
+              violationType
+            })
+          }).catch(console.error);
+        }
+      } catch (e) {
+        console.error("AI detection error", e);
+      }
+    }, 2000); // Check every 2 seconds
+
+    return () => {
+      socket.disconnect();
+      document.removeEventListener("visibilitychange", handleVisibilityChange);
+      clearInterval(visionInterval);
+    };
+  }, [proctoringSessionId, navigate]);
 
   useEffect(() => {
     if (!videoRef.current || !mediaStreamRef.current) {
@@ -367,6 +484,12 @@ export default function InterviewPage() {
           <p className="question-text">
             {isLoading ? "Retrieving interview questions..." : currentQuestion}
           </p>
+          
+          {warningMessage && (
+            <div style={{ backgroundColor: "#ffebee", color: "#c62828", padding: "10px", borderRadius: "8px", marginTop: "1rem", border: "1px solid #ef5350" }}>
+              <strong>⚠️ Proctoring Alert:</strong> {warningMessage}
+            </div>
+          )}
         </header>
 
         <section className="interview-grid">

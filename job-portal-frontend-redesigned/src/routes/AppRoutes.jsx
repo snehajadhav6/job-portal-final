@@ -15,6 +15,8 @@ import CompanyDashboard from "../pages/company/Dashboard";
 import Users from "../pages/admin/Users";
 import Companies from "../pages/admin/Companies";
 import Jobs from "../pages/admin/Jobs";
+import LiveProctoring from "../pages/admin/LiveProctoring";
+import ProctoringSummary from "../pages/admin/ProctoringSummary";
 import PostJob from "../pages/company/PostJob";
 import MyJobs from "../pages/company/MyJobs";
 import Applicants from "../pages/company/Applicants";
@@ -90,6 +92,8 @@ export default function AppRoutes() {
           <Route path="companies" element={<Companies />} />
           <Route path="jobs" element={<Jobs />} />
           <Route path="jobs/:id" element={<JobDetails />} />
+          <Route path="proctoring" element={<LiveProctoring />} />
+          <Route path="proctoring/summary/:id" element={<ProctoringSummary />} />
         </Route>
 
         {/* Company */}

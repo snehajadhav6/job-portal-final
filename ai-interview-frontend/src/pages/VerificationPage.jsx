@@ -31,7 +31,7 @@ export default function VerificationPage() {
 
     try {
       const token = await verifyCandidate(normalizedEmail);
-      navigate(`/interview/${token}`);
+      navigate(`/instructions/${token}`);
     } catch (submitError) {
       setError(getErrorMessage(submitError));
     } finally {
