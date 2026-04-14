@@ -47,6 +47,14 @@ class User {
     `);
     return rows;
   }
+
+  static async updatePassword(email, newPassword) {
+    const { rowCount } = await pool.query(
+      'UPDATE users SET password = $1 WHERE email = $2',
+      [newPassword, email]
+    );
+    return rowCount > 0;
+  }
 }
 
 module.exports = User;

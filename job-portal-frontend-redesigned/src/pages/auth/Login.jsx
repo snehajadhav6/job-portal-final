@@ -88,6 +88,13 @@ const handleSubmit = async (e) => {
             <option value="admin">Admin</option>
           </select>
 
+          {/* Forgot Password Link */}
+          <div className="flex justify-end mt-[-8px] mb-2">
+            <Link to="/reset-password" className="text-sm text-[var(--color-primary)] hover:underline font-medium">
+              Forgot Password?
+            </Link>
+          </div>
+
           {/* Button */}
           <button
             type="submit"

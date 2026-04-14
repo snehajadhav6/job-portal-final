@@ -10,6 +10,7 @@ import UserLayout from "../pages/user/UserLayout";
 // pages
 import Login from "../pages/auth/Login";
 import Register from "../pages/auth/Register";
+import ResetPassword from "../pages/auth/ResetPassword";
 import AdminDashboard from "../pages/admin/Dashboard";
 import CompanyDashboard from "../pages/company/Dashboard";
 import Users from "../pages/admin/Users";
@@ -59,6 +60,7 @@ export default function AppRoutes() {
         {/* Auth */}
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
+        <Route path="/reset-password" element={<ResetPassword />} />
 
         {/* User */}
         <Route

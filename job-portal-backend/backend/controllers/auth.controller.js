@@ -6,7 +6,8 @@ const Company = require('../models/company.model');
 const register = async (req, res) => {
   try {
     console.log("register clled")
-    const { name, email, password, role } = req.body;
+    let { name, email, password, role } = req.body;
+    if (email) email = email.toLowerCase().trim();
 
     const existingUser = await User.findByEmail(email);
     if (existingUser) {
@@ -28,7 +29,8 @@ const register = async (req, res) => {
 
 const login = async (req, res) => {
   try {
-    const { email, password, role } = req.body;
+    let { email, password, role } = req.body;
+    if (email) email = email.toLowerCase().trim();
 
     const user = await User.findByEmail(email);
     if (!user || user.role !== role) {
@@ -75,4 +77,33 @@ const getMe = async (req, res) => {
   }
 };
 
-module.exports = { register, login, getMe };
+const resetPassword = async (req, res) => {
+  try {
+    let { email, newPassword } = req.body;
+    
+    if (!email || !newPassword) {
+      return res.status(400).json({ message: 'Email and new password are required' });
+    }
+
+    email = email.toLowerCase().trim();
+
+    const user = await User.findByEmail(email);
+    if (!user) {
+      // Return 404 but in a generic way or just say "not found"
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
+    const updated = await User.updatePassword(email, hashedPassword);
+
+    if (updated) {
+      res.json({ message: 'Password updated successfully' });
+    } else {
+      res.status(500).json({ message: 'Failed to update password' });
+    }
+  } catch (error) {
+    res.status(500).json({ message: 'Server error', error: error.message });
+  }
+};
+
+module.exports = { register, login, getMe, resetPassword };
