@@ -84,3 +84,168 @@ Used by your Manager frontend Dashboard to manually bump a tested candidate into
   "message": "Candidate approved for interview successfully"
 }
 ```
+
+---
+
+### 4. Live Proctoring: Start Session
+Used by the frontend to initialize a candidate's live proctoring session, set the integrity score to 100, and ensure readiness for monitoring.
+
+**Endpoint:** `POST /proctoring/start-session`
+**Content-Type:** `application/json`
+
+**Request Format:**
+```json
+{
+  "candidateId": 1
+}
+```
+
+**Response (Success 200):**
+```json
+{
+  "message": "Session started successfully",
+  "sessionId": 5
+}
+```
+
+---
+
+### 5. Live Proctoring: Report Violation
+Hit by the client-side AI/monitoring scripts to report negative behaviors (e.g., leaving the tab, no face detected, etc.) during an active interview. This dynamically reduces the session's integrity score and saves an audit log.
+
+**Endpoint:** `POST /proctoring/report-violation`
+**Content-Type:** `application/json`
+
+**Request Format:**
+```json
+{
+  "candidateId": 1,
+  "sessionId": 5,
+  "violationType": "TAB_SWITCH" // Options: 'TAB_SWITCH', 'FACE_NOT_DETECTED', 'CAMERA_OFF', 'MULTIPLE_FACES'
+}
+```
+
+**Response (Success 200):**
+```json
+{
+  "message": "Violation reported",
+  "integrityScore": 90
+}
+```
+*(If violations trigger more than 3 warnings, this endpoint will automatically terminate the interview).*
+
+---
+
+### 6. Admin Panel: Send Warning
+Used by Admin/Proctor via the Live Dashboard to explicitly send a warning notification to a candidate's screen. If the warning cap (3) is exceeded, the interview is forcefully terminated.
+
+**Endpoint:** `POST /proctoring/send-warning`
+**Headers:** `Authorization: Bearer <Admin_JWT>`
+**Content-Type:** `application/json`
+
+**Request Format:**
+```json
+{
+  "candidateId": 1,
+  "sessionId": 5
+}
+```
+
+**Response (Success 200):**
+```json
+{
+  "message": "Warning sent",
+  "warningNumber": 1
+}
+```
+
+---
+
+### 7. Admin Panel: Terminate Interview
+Used by Admin/Proctor to explicitly and instantaneously terminate a candidate's live interview session due to extreme violations.
+
+**Endpoint:** `POST /proctoring/terminate-interview`
+**Headers:** `Authorization: Bearer <Admin_JWT>`
+**Content-Type:** `application/json`
+
+**Request Format:**
+```json
+{
+  "candidateId": 1,
+  "sessionId": 5
+}
+```
+
+**Response (Success 200):**
+```json
+{
+  "message": "Interview terminated",
+  "reason": "ADMIN_TERMINATED"
+}
+```
+
+---
+
+### 8. Admin Panel: Get Live Candidates
+Fetches an aggregated list of all currently active proctoring sessions for the Admin/Manager dashboard, complete with violation metrics.
+
+**Endpoint:** `GET /proctoring/live-candidates`
+**Headers:** `Authorization: Bearer <Admin_JWT>`
+
+**Response (Success 200):**
+```json
+[
+  {
+    "session_id": 5,
+    "candidate_id": 1,
+    "candidate_name": "Sneha",
+    "email": "sneha@example.com",
+    "status": "ACTIVE",
+    "integrity_score": 90,
+    "start_time": "2023-10-15T10:00:00.000Z",
+    "violation_count": 1,
+    "warnings_count": 0
+  }
+]
+```
+
+---
+
+### 9. Admin Panel: Get Session Summary
+Provides a comprehensive overview of a candidate's concluded session—detailing final scores, AI recommendations, all registered warnings, and a breakdown of categorized violations.
+
+**Endpoint:** `GET /proctoring/session-summary/:candidateId`
+**Headers:** `Authorization: Bearer <Admin_JWT>`
+
+*(No Body required. Pass `candidateId` as URL parameter).*
+
+**Response (Success 200):**
+```json
+{
+  "candidateName": "Sneha",
+  "status": "TERMINATED",
+  "integrityScore": 65,
+  "totalViolations": 3,
+  "violationBreakdown": [
+    {
+      "violation_type": "TAB_SWITCH",
+      "count": 2
+    },
+    {
+      "violation_type": "FACE_NOT_DETECTED",
+      "count": 1
+    }
+  ],
+  "warningsCount": 2,
+  "terminationReason": "MAX_WARNINGS_EXCEEDED",
+  "startTime": "2023-10-15T10:00:00.000Z",
+  "endTime": "2023-10-15T10:45:00.000Z",
+  "duration": 2700,
+  "questionsAsked": 5,
+  "questionsAnswered": 5,
+  "averageScore": 8.5,
+  "overallScore": 85,
+  "aiRecommendation": "HIRE",
+  "summary": "Candidate demonstrated strong backend skills..."
+}
+```
