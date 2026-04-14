@@ -68,14 +68,12 @@ function normalizeStringList(value) {
 
 function extractResult(payload, fallbackAnswers) {
   const source = payload?.data ?? payload;
-  const score = source?.score ?? source?.result?.score ?? 0;
-  const summary = source?.summary ?? source?.result?.summary ?? "";
-  const strengths = normalizeStringList(
-    source?.strengths ?? source?.result?.strengths
-  );
-  const weaknesses = normalizeStringList(
-    source?.weaknesses ?? source?.result?.weaknesses
-  );
+  const evalData = source?.evaluation ?? source?.result ?? source;
+  
+  const score = evalData?.overall_score ?? evalData?.score ?? 0;
+  const summary = evalData?.summary ?? "";
+  const strengths = normalizeStringList(evalData?.strengths);
+  const weaknesses = normalizeStringList(evalData?.weaknesses);
 
   return {
     token: source?.token ?? payload?.token ?? "",

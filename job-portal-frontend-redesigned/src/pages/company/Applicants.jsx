@@ -289,13 +289,6 @@ const Applicants = () => {
       Fetch Result
     </button>
 
-    {/* Show Result */}
-    {results[app.id] && (
-  <div className="text-sm bg-[var(--bg-primary)] border rounded p-2 mt-1">
-    <p><strong>Score:</strong> {results[app.id].score}/10</p>
-  </div>
-)}
-
     {/* Hire button */}
                 <button
                   onClick={() => updateStatus(app.id, "hired")}
@@ -315,6 +308,18 @@ const Applicants = () => {
                   )}
                 </div>
               </div>
+
+              {/* Show Result (Full width at bottom of card) */}
+              {results[app.id] && (
+                <div className="mt-4 pt-4 border-t border-[var(--border-color)]">
+                  <div className="text-sm bg-[var(--bg-primary)] border rounded p-4 shadow-sm w-full">
+                    <p className="text-base"><strong>AI Interview Score:</strong> {results[app.id].score}/100</p>
+                    <p className="mt-2 text-gray-700 leading-relaxed">
+                      <strong>Feedback:</strong> {results[app.id].feedback?.summary || results[app.id].feedback?.result?.summary || "No AI feedback summary available yet."}
+                    </p>
+                  </div>
+                </div>
+              )}
             </div>
           ))}
         </div>

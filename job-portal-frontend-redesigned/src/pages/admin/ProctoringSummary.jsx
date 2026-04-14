@@ -105,6 +105,19 @@ export default function ProctoringSummary() {
           </div>
         </div>
 
+        {/* AI Evaluation Summary at the END */}
+        {report.summary && (
+          <div style={{ marginTop: '30px' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '15px' }}>
+               <div style={{ width: '4px', height: '24px', background: '#3b82f6', borderRadius: '2px' }}></div>
+               <h3 style={{ margin: 0, fontSize: '1.2rem', color: '#1f2937', fontWeight: '600' }}>AI Evaluation Summary</h3>
+            </div>
+            <div style={{ background: '#f8f9fa', border: '1px solid #edf2f7', padding: '20px', borderRadius: '8px', color: '#4b5563', lineHeight: '1.6', fontSize: '0.95rem' }}>
+              {report.summary}
+            </div>
+          </div>
+        )}
+
       </div>
     </div>
   );

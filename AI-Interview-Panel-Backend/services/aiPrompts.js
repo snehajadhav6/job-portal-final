@@ -92,11 +92,11 @@ Evaluate answers.
 
 Return ONLY JSON:
 {
-  "overall_score": number,
+  "overall_score": number (0 to 100),
   "question_wise": [
     {
       "question": "",
-      "score": number,
+      "score": number (0 to 10),
       "feedback": ""
     }
   ],

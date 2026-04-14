@@ -251,7 +251,7 @@ exports.getSessionSummary = async (req, res) => {
     const userRes = await pool.query("SELECT name FROM users WHERE id = $1", [candidateId]);
     
     const resultsData = await pool.query(
-      "SELECT questions_asked, questions_answered, average_score, overall_score, ai_recommendation FROM interview_results WHERE user_id = $1 ORDER BY created_at DESC LIMIT 1",
+      "SELECT questions_asked, questions_answered, average_score, overall_score, ai_recommendation, feedback FROM interview_results WHERE user_id = $1 ORDER BY created_at DESC LIMIT 1",
       [candidateId]
     );
     
@@ -272,7 +272,8 @@ exports.getSessionSummary = async (req, res) => {
       questionsAnswered: aiResult.questions_answered,
       averageScore: aiResult.average_score,
       overallScore: aiResult.overall_score,
-      aiRecommendation: aiResult.ai_recommendation
+      aiRecommendation: aiResult.ai_recommendation,
+      summary: aiResult.feedback?.summary || aiResult.feedback?.result?.summary || ''
     });
   } catch (error) {
     console.error('Error getting session summary:', error);
