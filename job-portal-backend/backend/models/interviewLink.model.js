@@ -2,12 +2,7 @@ const pool = require('../config/db');
 const { v4: uuidv4 } = require('uuid');
 
 class InterviewLink {
-  /**
-   * Create a secure, unique token for a candidate interview.
-   * Token expires in 24 hours.
-   */
   static async createForUser(userId) {
-    // Retry on the extremely unlikely case of UUID collision.
     for (let attempt = 0; attempt < 3; attempt++) {
       const token = uuidv4();
       try {
@@ -19,7 +14,6 @@ class InterviewLink {
         );
         return rows[0];
       } catch (err) {
-        // 23505 = unique_violation (token)
         if (err && err.code === '23505' && attempt < 2) continue;
         throw err;
       }

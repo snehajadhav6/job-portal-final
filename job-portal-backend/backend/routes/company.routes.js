@@ -8,12 +8,9 @@ const upload = require('../middleware/upload.middleware');
 const router = express.Router();
 
 router.use(authMiddleware);
-
-// New additive APIs (manager/admin)
 router.post('/send-interview-link/:user_id', roleMiddleware(['manager', 'admin']), sendInterviewLink);
 router.get('/interview-results/:user_id', roleMiddleware(['manager', 'admin']), getInterviewResults);
 
-// Existing company panel behavior (manager only)
 router.use(roleMiddleware(['manager']));
 
 router.get('/profile', getProfile);

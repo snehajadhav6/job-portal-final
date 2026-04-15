@@ -81,7 +81,6 @@ function fallbackExtractEntitiesFromText(resumeText) {
     /\b(experience|intern|developer|engineer|project|worked|employment)\b/i.test(line)
   ).slice(0, 12);
 
-  // Heuristic name: first non-empty short line that is not contact/link text.
   const candidateName = lines.find((line) =>
     line.length >= 3 &&
     line.length <= 40 &&
@@ -123,7 +122,7 @@ async function extractResumeEntities(resumeText) {
         await sleep(1200);
         continue;
       }
-      // Model may be unavailable (e.g. 410/404/rate-limit). Fallback to local extraction.
+
       return fallbackExtractEntitiesFromText(resumeText);
     }
   }

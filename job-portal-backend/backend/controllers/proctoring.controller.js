@@ -33,20 +33,18 @@ exports.reportViolation = async (req, res) => {
     const { candidateId, sessionId, violationType } = req.body;
     const io = req.app.get('io');
     
-    // Determine penalty based on rule
+
     let penalty = 0;
     if (violationType === 'TAB_SWITCH') penalty = 10;
     else if (violationType === 'FACE_NOT_DETECTED') penalty = 15;
     else if (violationType === 'CAMERA_OFF') penalty = 20;
     else if (violationType === 'MULTIPLE_FACES') penalty = 25;
 
-    // Insert violation log
     await pool.query(
       "INSERT INTO violations_log (proctoring_session_id, violation_type, integrity_reduction) VALUES ($1, $2, $3)",
       [sessionId, violationType, penalty]
     );
 
-    // Update integrity score
     const updatedSession = await pool.query(
       "UPDATE proctoring_sessions SET integrity_score = GREATEST(0, integrity_score - $1) WHERE id = $2 RETURNING integrity_score",
       [penalty, sessionId]
@@ -54,7 +52,6 @@ exports.reportViolation = async (req, res) => {
 
     const newIntegrity = updatedSession.rows[0].integrity_score;
 
-    // Emit socket event to admin to update dashboard instantly
     if (io) {
       io.of('/admin').emit('violation-detected', {
         candidateId,
@@ -69,7 +66,6 @@ exports.reportViolation = async (req, res) => {
       });
     }
 
-    // Check existing warnings and issue an automatic warning for this violation
     const warningsResult = await pool.query(
       "SELECT COUNT(*) FROM warnings_log WHERE proctoring_session_id = $1",
       [sessionId]
@@ -77,21 +73,18 @@ exports.reportViolation = async (req, res) => {
     const existingWarnings = parseInt(warningsResult.rows[0].count);
     const newWarningNumber = existingWarnings + 1;
 
-    // Only insert a warning if we haven't crossed the threshold already
     if (newWarningNumber <= 3) {
       await pool.query(
         "INSERT INTO warnings_log (proctoring_session_id, warning_number, message) VALUES ($1, $2, $3)",
         [sessionId, newWarningNumber, "Automatic warning for violation"]
       );
 
-      // Alert candidate they received automatic warning
       if (io) {
         io.of('/candidate').to(`candidate-${candidateId}`).emit('receive-warning', {
           warningNumber: newWarningNumber,
           message: `Warning ${newWarningNumber}/3: Violation detected (${violationType}). The next warning may result in termination.`
         });
         
-        // Alert admin
         io.of('/admin').emit('warning-sent', {
           candidateId,
           sessionId,
@@ -116,7 +109,6 @@ exports.sendWarning = async (req, res) => {
     const { candidateId, sessionId } = req.body;
     const io = req.app.get('io');
 
-    // Count existing warnings
     const countResult = await pool.query(
       "SELECT COUNT(*) FROM warnings_log WHERE proctoring_session_id = $1",
       [sessionId]
@@ -128,20 +120,17 @@ exports.sendWarning = async (req, res) => {
       return res.status(400).json({ message: 'Max warnings already exceeded. Terminate session.' });
     }
 
-    // Insert warning
     await pool.query(
       "INSERT INTO warnings_log (proctoring_session_id, warning_number, message) VALUES ($1, $2, $3)",
       [sessionId, newWarningNumber, "Manual warning sent by admin"]
     );
 
-    // Emit socket to candidate
     if (io) {
       io.of('/candidate').to(`candidate-${candidateId}`).emit('receive-warning', {
         warningNumber: newWarningNumber,
         message: `Warning ${newWarningNumber}/3: Please ensure you adhere to the interview rules. The next warning may result in termination.`
       });
       
-      // Emit update back to admin just in case
       io.of('/admin').emit('warning-sent', {
         candidateId,
         sessionId,
@@ -151,7 +140,7 @@ exports.sendWarning = async (req, res) => {
 
     // Auto terminate if 3 warnings reached
     if (newWarningNumber === 3) {
-      // Call local terminate logic
+      
       return exports.executeTermination(candidateId, sessionId, 'MAX_WARNINGS_EXCEEDED', io, res);
     }
 
@@ -197,7 +186,6 @@ exports.executeTermination = async (candidateId, sessionId, reason, io, res) => 
 
 exports.getLiveCandidates = async (req, res) => {
   try {
-    // Join with Users table to get candidate Name
     const result = await pool.query(`
       SELECT 
         isess.id as session_id,

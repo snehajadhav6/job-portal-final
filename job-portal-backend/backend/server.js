@@ -49,15 +49,13 @@ const { Server } = require('socket.io');
 const server = http.createServer(app);
 const io = new Server(server, {
   cors: {
-    origin: '*', // Allow both frontend origins (AI & Admin dashboards)
+    origin: '*', 
     methods: ['GET', 'POST']
   }
 });
 
-// Set io globally so controllers can use it
 app.set('io', io);
 
-// Initialize Socket.io services
 require('./services/proctoring.socket')(io);
 
 const PORT = process.env.PORT || 5000;

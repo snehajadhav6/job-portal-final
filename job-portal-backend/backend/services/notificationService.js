@@ -2,7 +2,7 @@ const sendEmail = require('../utils/sendEmail');
 const pool = require('../config/db');
 
 async function sendAssessmentNotification(userId, email, candidateName, jobRole, managerId, companyName) {
-  // Backward compatibility: allow sendAssessmentNotification(email)
+
   if (typeof userId === 'string' && !email) {
     email = userId;
     userId = null;
@@ -10,7 +10,6 @@ async function sendAssessmentNotification(userId, email, candidateName, jobRole,
     jobRole = 'applied';
   }
 
-  // 1. Send Email
   const subject = `Coding Assessment Invitation - ${jobRole} at ${companyName || 'our company'}`;
   const text = `Dear ${candidateName},
 
@@ -42,7 +41,6 @@ Hiring Team at ${companyName || 'our company'}`;
 
   await sendEmail(email, subject, text);
 
-  // 2. Insert into notifications table for the Candidate
   if (userId) {
     const candidateMsgObj = {
       text: `You have been selected for a coding assessment for the ${jobRole} position at ${companyName || 'our company'}.`,
@@ -66,7 +64,6 @@ Hiring Team at ${companyName || 'our company'}`;
     }
   }
 
-  // 3. Insert into notifications table for the Manager
   if (managerId) {
     const managerMsg = `Automated assessment link sent to ${candidateName} for the ${jobRole} position.`;
     try {
@@ -121,7 +118,7 @@ async function createAtsStatusNotification(userId, shortlistStatus) {
       [userId, message, shortlistStatus]
     );
   } catch (_) {
-    // Backward-compatible fallback for existing schema that uses "type" instead of "status".
+    
     await pool.query(
       `INSERT INTO notifications (user_id, message, type) VALUES ($1, $2, $3)`,
       [userId, message, shortlistStatus]

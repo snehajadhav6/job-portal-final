@@ -10,8 +10,6 @@ async function runMigrations() {
 
     console.log('Running initial database schema...');
     
-    // If you want to automatically uncomment the ALTER statements to run them,
-    // we can parse and run them here as well.
     const migrationLines = sql.split('\n');
     let createTableSql = '';
     let alterStatements = [];
@@ -23,7 +21,7 @@ async function runMigrations() {
         line.startsWith('-- CREATE INDEX ') ||
         line.startsWith('-- CREATE UNIQUE INDEX ')
       ) {
-        // Uncomment the migration statements
+
         alterStatements.push(line.replace(/^--\s*/, ''));
       } else {
         createTableSql += line + '\n';
@@ -48,8 +46,6 @@ async function runMigrations() {
           await pool.query(alterQuery);
           console.log(`Executed: ${alterQuery}`);
         } catch (err) {
-          // If the column already exists, Postgres handles it via IF NOT EXISTS 
-          // but if we get other errors, let's log them
           console.log(`Skipped/Error on: ${alterQuery} -> ${err.message}`);
         }
       }

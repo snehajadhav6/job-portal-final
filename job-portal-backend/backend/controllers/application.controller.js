@@ -15,32 +15,30 @@ const applyForJob = async (req, res) => {
     const { job_id, cover_letter, college_name, cgpa, willing_to_relocate, experience_years } = req.body;
     const uploadedFile = req.file || (Array.isArray(req.files) ? req.files[0] : null);
 
-    // ✅ Ensure resume is uploaded
+    
     if (!uploadedFile) {
       return res.status(400).json({ message: "Resume is required" });
     }
 
     console.log("Uploaded File:", uploadedFile);
 
-    // Use the uploaded Cloudinary URL
+    
     const resume_url = uploadedFile.secure_url || uploadedFile.path || uploadedFile.url;
     if (!resume_url) {
       return res.status(400).json({ message: 'Resume upload failed' });
     }
 
-    // Check if already applied
+    
     const existingApplication = await Application.findByUserAndJob(req.user.id, job_id);
     if (existingApplication) {
       return res.status(400).json({ message: 'Already applied for this job' });
     }
 
-    // Retrieve job description for ATS mapping
     const job = await Job.findById(job_id);
     if (!job) {
       return res.status(404).json({ message: 'Job not found' });
     }
 
-    // STEP 1: Extract resume text from PDF
     let resumeText = '';
     try {
       resumeText = await extractResumeText(resume_url);
@@ -49,7 +47,6 @@ const applyForJob = async (req, res) => {
       return res.status(400).json({ message: 'Unable to extract text from resume PDF' });
     }
 
-    // STEP 2: Parse entities using HuggingFace NER model
     let parsedEntities = {
       name: '',
       email: '',
@@ -70,7 +67,7 @@ const applyForJob = async (req, res) => {
       };
     }
 
-    // STEP 3: ATS scoring using HuggingFace parsed entities against job data
+
     const atsScore = scoreResumeEntities(parsedEntities, resumeText, job.description, job.title);
     
     console.log("\n==================================");
@@ -82,7 +79,6 @@ const applyForJob = async (req, res) => {
     let status = 'rejected';
     let testStatus = 'not_started';
 
-    // STEP 3: Shortlisting logic
     if (isShortlisted) {
       status = 'shortlisted';
       testStatus = 'sent';
@@ -92,7 +88,7 @@ const applyForJob = async (req, res) => {
       job_id,
       user_id: req.user.id,
       cover_letter,
-      resume_url, // ✅ fixed URL
+      resume_url, 
       college_name,
       cgpa: cgpa ? parseFloat(cgpa) : null,
       willing_to_relocate: willing_to_relocate === 'true' || willing_to_relocate === true,
@@ -104,7 +100,6 @@ const applyForJob = async (req, res) => {
 
     const user = await User.findById(req.user.id);
     
-    // STEP 5: ATS status notification creation
     try {
       await createAtsStatusNotification(req.user.id, status);
     } catch (notifyError) {
@@ -182,7 +177,6 @@ const updateApplicationStatus = async (req, res) => {
     await Application.updateStatus(req.params.id, status);
 
     const user = await User.findById(application.user_id);
-    // If manager marks as interview from Applicants Management, send secure unique link.
     if (status === 'interview') {
       const linkRow = await InterviewLink.createForUser(application.user_id);
       const interviewLink = `http://localhost:5174/interview?token=${linkRow.token}`;
@@ -205,7 +199,6 @@ const updateApplicationStatus = async (req, res) => {
       });
     }
 
-    // Existing behavior for other statuses stays unchanged.
     const subject = `Application Status Update for ${job.title}`;
     const text = `Your application status has been updated to: ${status}`;
     await sendEmail(user.email, subject, text);

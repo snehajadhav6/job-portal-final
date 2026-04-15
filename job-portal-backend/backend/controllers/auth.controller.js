@@ -89,7 +89,6 @@ const resetPassword = async (req, res) => {
 
     const user = await User.findByEmail(email);
     if (!user) {
-      // Return 404 but in a generic way or just say "not found"
       return res.status(404).json({ message: 'User not found' });
     }
 

@@ -32,9 +32,6 @@ const sendInterviewLink = async (req, res) => {
       return res.status(400).json({ message: 'Invalid user id' });
     }
 
-    // Role permissions:
-    // - admin can generate for any candidate
-    // - manager can generate only for candidates who applied to their company
     if (req.user.role === 'manager') {
       const allowed = await assertManagerCanAccessCandidate(req.user.id, candidateUserId);
       if (!allowed) return res.status(403).json({ message: 'Unauthorized' });
@@ -48,14 +45,12 @@ const sendInterviewLink = async (req, res) => {
     const linkRow = await InterviewLink.createForUser(candidateUserId);
     const interviewLink = buildInterviewUrl(linkRow.token);
 
-    // Email notification
     const subject = 'Interview Shortlisted';
     const text =
       `You have been shortlisted for the interview. Please use the link below to attend your interview.\n\n` +
       `${interviewLink}\n`;
     await sendEmail(candidate.email, subject, text);
 
-    // Candidate dashboard notification (optional but enabled)
     const panelMessage = 'You have been shortlisted for the interview. Please check your interview link.';
     try {
       await pool.query(
