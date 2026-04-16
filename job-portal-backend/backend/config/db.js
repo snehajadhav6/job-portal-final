@@ -8,7 +8,6 @@ const pool = new Pool({
   max: 10
 });
 
-// Optional: check connection on startup
 pool.connect((err, client, release) => {
   if (err) {
     console.error('Error connecting to PostgreSQL:', err.message);

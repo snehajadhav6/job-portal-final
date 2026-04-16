@@ -105,7 +105,6 @@ const scheduleInterview = async (req, res) => {
 
     const interviewLink = `https://interview.shnoor-temp-link.com/session/${application.user_id}`;
 
-    // Update DB explicitly
     await pool.query(
       `UPDATE applications 
        SET status = 'interview', interview_status = 'Scheduled', interview_link = $1, interview_notified = true 
