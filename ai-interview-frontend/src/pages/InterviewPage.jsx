@@ -40,6 +40,7 @@ export default function InterviewPage() {
   const answersRef = useRef([]);
   const currentIndexRef = useRef(0);
   const currentQuestionRef = useRef("");
+  const [actualCandidateId, setActualCandidateId] = useState(null);
   const [questions, setQuestions] = useState([]);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [answers, setAnswers] = useState([]);
@@ -68,12 +69,20 @@ export default function InterviewPage() {
     let isMounted = true;
 
     async function loadQuestions() {
-      const loadedQuestions = await getInterviewQuestions(token);
+      try {
+        const loadedData = await getInterviewQuestions(token);
 
-      if (isMounted) {
-        setQuestions(loadedQuestions);
-        setCurrentIndex(0);
-        setIsLoading(false);
+        if (isMounted) {
+          setQuestions(loadedData.questions);
+          setActualCandidateId(loadedData.candidateId);
+          setCurrentIndex(0);
+          setIsLoading(false);
+        }
+      } catch (err) {
+        if (isMounted) {
+          setError(err.message || "Failed to load interview questions.");
+          setIsLoading(false);
+        }
       }
     }
 
@@ -147,13 +156,13 @@ export default function InterviewPage() {
   }, []);
 
   useEffect(() => {
-    const mockCandidateId = 3;
+    if (!actualCandidateId) return;
 
     const socket = io(PROCTORING_SERVER_URL, { transports: ["websocket", "polling"] });
     socketRef.current = socket;
 
     socket.on("connect", () => {
-      socket.emit("join-session", { candidateId: mockCandidateId });
+      socket.emit("join-session", { candidateId: actualCandidateId });
     });
 
     socket.on("receive-warning", (data) => {
@@ -179,7 +188,7 @@ export default function InterviewPage() {
 
         pc.onicecandidate = (event) => {
           if (event.candidate) {
-            socketRef.current.emit("webrtc-ice-candidate", { adminId, candidate: event.candidate, candidateId: mockCandidateId });
+            socketRef.current.emit("webrtc-ice-candidate", { adminId, candidate: event.candidate, candidateId: actualCandidateId });
           }
         };
 
@@ -191,7 +200,7 @@ export default function InterviewPage() {
         const answer = await pc.createAnswer();
         await pc.setLocalDescription(answer);
 
-        socketRef.current.emit("webrtc-answer", { adminId, answer, candidateId: mockCandidateId });
+        socketRef.current.emit("webrtc-answer", { adminId, answer, candidateId: actualCandidateId });
       } catch (e) {
         console.error("Error setting up WebRTC response:", e);
       }
@@ -212,13 +221,21 @@ export default function InterviewPage() {
     fetch(`${PROCTORING_API_URL}/start-session`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ candidateId: mockCandidateId }),
+      body: JSON.stringify({ candidateId: actualCandidateId }),
     })
       .then((res) => res.json())
       .then((data) => {
         if (data.sessionId) setProctoringSessionId(data.sessionId);
       })
       .catch((err) => console.error("Error starting proctoring session:", err));
+
+    const heartbeatInterval = setInterval(() => {
+      fetch(`${PROCTORING_API_URL}/heartbeat`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ candidateId: actualCandidateId }),
+      }).catch(err => console.error("Heartbeat error:", err));
+    }, 30000); // Send heartbeat every 30 seconds
 
     cocoSsd.load().then((loadedModel) => {
       modelRef.current = loadedModel;
@@ -232,7 +249,7 @@ export default function InterviewPage() {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
-            candidateId: mockCandidateId,
+            candidateId: actualCandidateId,
             sessionId: proctoringSessionId,
             violationType: "TAB_SWITCH"
           })
@@ -269,7 +286,7 @@ export default function InterviewPage() {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
-              candidateId: mockCandidateId,
+              candidateId: actualCandidateId,
               sessionId: proctoringSessionId,
               violationType
             })
@@ -285,8 +302,9 @@ export default function InterviewPage() {
       socket.disconnect();
       document.removeEventListener("visibilitychange", handleVisibilityChange);
       clearInterval(visionInterval);
+      clearInterval(heartbeatInterval);
     };
-  }, [proctoringSessionId, navigate]);
+  }, [actualCandidateId, proctoringSessionId, navigate]);
 
   useEffect(() => {
     if (!videoRef.current || !mediaStreamRef.current) {
@@ -471,6 +489,14 @@ export default function InterviewPage() {
         window.localStorage.setItem(INTERVIEW_RESULT_STORAGE_KEY, JSON.stringify(result));
       }
 
+      if (proctoringSessionId && actualCandidateId) {
+        await fetch(`${PROCTORING_API_URL}/complete-session`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ candidateId: actualCandidateId, sessionId: proctoringSessionId }),
+        }).catch(err => console.error("Error completing session:", err));
+      }
+
       navigate(`/result/${token}`);
     } catch (submitError) {
       setError("Failed to submit interview data.");
@@ -493,6 +519,21 @@ export default function InterviewPage() {
           <p className="eyebrow">Interview</p>
           <h1>Missing Session</h1>
           <p className="muted">Invalid session: Authentication token is missing.</p>
+        </section>
+      </main>
+    );
+  }
+
+  if (!isLoading && questions.length === 0 && error) {
+    return (
+      <main className="page-shell">
+        <section className="card">
+          <p className="eyebrow">Interview Error</p>
+          <h1>Unable to Start Interview</h1>
+          <p className="muted">{error}</p>
+          <button className="primary-button" style={{ marginTop: "1rem" }} onClick={() => navigate("/")}>
+            Go Home
+          </button>
         </section>
       </main>
     );

@@ -126,7 +126,7 @@ exports.generateQuestions = async (req, res) => {
       });
     }
 
-    res.json(questions);
+    res.json({ questions: questions.questions || questions, userId });
 
   } catch (err) {
     console.error("Generate Questions Error:", err);

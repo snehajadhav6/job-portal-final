@@ -3,19 +3,22 @@ const pool = require('../config/db');
 exports.startSession = async (req, res) => {
   try {
     const { candidateId } = req.body;
-    let sessionResult = await pool.query(
-      "SELECT * FROM proctoring_sessions WHERE candidate_id = $1 AND status = 'ACTIVE'",
+    const newSession = await pool.query(
+      `INSERT INTO proctoring_sessions (candidate_id, status, integrity_score, last_heartbeat)
+       SELECT $1, 'ACTIVE', 100, NOW()
+       WHERE NOT EXISTS (SELECT 1 FROM proctoring_sessions WHERE candidate_id = $1 AND status = 'ACTIVE')
+       RETURNING id`,
       [candidateId]
     );
 
     let sessionId;
-    if (sessionResult.rows.length === 0) {
-      const newSession = await pool.query(
-        "INSERT INTO proctoring_sessions (candidate_id, status, integrity_score, last_heartbeat) VALUES ($1, 'ACTIVE', 100, NOW()) RETURNING id",
-        [candidateId]
-      );
+    if (newSession.rows.length > 0) {
       sessionId = newSession.rows[0].id;
     } else {
+      const sessionResult = await pool.query(
+        "SELECT id FROM proctoring_sessions WHERE candidate_id = $1 AND status = 'ACTIVE' LIMIT 1",
+        [candidateId]
+      );
       sessionId = sessionResult.rows[0].id;
     }
 
@@ -28,7 +31,7 @@ exports.startSession = async (req, res) => {
 
 exports.heartbeat = async (req, res) => {
   try {
-    const candidateId = req.user.id;
+    const { candidateId } = req.body;
 
     const result = await pool.query(
       `UPDATE proctoring_sessions
@@ -86,8 +89,7 @@ exports.startHeartbeatMonitor = (io) => {
 
 exports.reportViolation = async (req, res) => {
   try {
-    const { sessionId, violationType } = req.body;
-    const candidateId = req.user.id;
+    const { sessionId, violationType, candidateId } = req.body;
 
     const io = req.app.get('io');
 
@@ -112,6 +114,17 @@ exports.reportViolation = async (req, res) => {
     if (io) {
       io.of('/admin').emit('violation-detected', { candidateId, sessionId, violationType, newIntegrity });
       io.of('/admin').emit('integrity-score-update', { candidateId, sessionId, integrityScore: newIntegrity });
+
+      let warningMsg = 'Warning: A proctoring violation was detected.';
+      if (violationType === 'TAB_SWITCH') warningMsg = 'Warning: Navigating away from the interview tab is a violation.';
+      else if (violationType === 'FACE_NOT_DETECTED') warningMsg = 'Warning: Face not detected. Please stay in front of the camera.';
+      else if (violationType === 'CAMERA_OFF') warningMsg = 'Warning: Camera is turned off. Please turn it on.';
+      else if (violationType === 'MULTIPLE_FACES') warningMsg = 'Warning: Multiple faces detected. Please ensure you are alone.';
+      else if (violationType === 'MOBILE_DETECTED') warningMsg = 'Warning: Mobile phone detected. Please put it away.';
+
+      io.of('/candidate').to(`candidate-${candidateId}`).emit('receive-warning', {
+        message: warningMsg
+      });
     }
 
     const violationsResult = await pool.query(
@@ -203,6 +216,27 @@ exports.executeTermination = async (candidateId, sessionId, reason, io, res) => 
   }
 };
 
+exports.completeSession = async (req, res) => {
+  try {
+    const { candidateId, sessionId } = req.body;
+    const io = req.app.get('io');
+
+    await pool.query(
+      "UPDATE proctoring_sessions SET status = 'COMPLETED', end_time = CURRENT_TIMESTAMP WHERE id = $1 AND candidate_id = $2",
+      [sessionId, candidateId]
+    );
+
+    if (io) {
+      io.of('/admin').emit('interview-completed', { candidateId, sessionId });
+    }
+
+    res.status(200).json({ message: 'Session completed successfully' });
+  } catch (error) {
+    console.error('Error completing session:', error);
+    res.status(500).json({ message: 'Server error completing session' });
+  }
+};
+
 exports.getLiveCandidates = async (req, res) => {
   try {
     const page  = Math.max(1, parseInt(req.query.page  || '1',  10));
@@ -224,13 +258,13 @@ exports.getLiveCandidates = async (req, res) => {
         (SELECT COUNT(*) FROM warnings_log WHERE proctoring_session_id = isess.id) as warnings_count
       FROM proctoring_sessions isess
       JOIN users u ON isess.candidate_id = u.id
-      WHERE isess.status = 'ACTIVE'
-      ORDER BY isess.created_at DESC
+      WHERE isess.status IN ('ACTIVE', 'COMPLETED')
+      ORDER BY CASE WHEN isess.status = 'ACTIVE' THEN 1 ELSE 2 END, isess.created_at DESC
       LIMIT $1 OFFSET $2
     `, [limit, offset]);
 
     const countResult = await pool.query(
-      "SELECT COUNT(*) FROM proctoring_sessions WHERE status = 'ACTIVE'"
+      "SELECT COUNT(*) FROM proctoring_sessions WHERE status IN ('ACTIVE', 'COMPLETED')"
     );
     const total = parseInt(countResult.rows[0].count);
 

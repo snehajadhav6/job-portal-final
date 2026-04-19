@@ -106,7 +106,10 @@ export async function getInterviewQuestions(token) {
   );
 
   const payload = await parseJsonResponse(response);
-  return extractQuestions(payload);
+  return {
+    questions: extractQuestions(payload),
+    candidateId: payload.userId || 3
+  };
 }
 
 export async function submitInterview(token, answers) {

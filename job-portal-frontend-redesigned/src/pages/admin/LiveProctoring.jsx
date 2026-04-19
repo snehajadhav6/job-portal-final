@@ -116,6 +116,14 @@ export default function LiveProctoring() {
       );
     });
 
+    socket.on("interview-completed", ({ sessionId }) => {
+      setCandidates((prev) =>
+        prev.map(c => c.session_id === sessionId
+          ? { ...c, status: "COMPLETED" }
+          : c)
+      );
+    });
+
     socket.on("webrtc-answer", async ({ candidateId, answer }) => {
       const pc = peerConnections.current[candidateId];
       if (pc) {
@@ -184,7 +192,7 @@ export default function LiveProctoring() {
         <h1 className="text-2xl font-bold">Live Proctoring Dashboard</h1>
         <div className="filters" style={{ display: "flex", gap: "8px", alignItems: "center" }}>
           <select value={filter} onChange={(e) => setFilter(e.target.value)} style={{ padding: '8px', borderRadius: '4px', border: '1px solid #ddd' }}>
-            <option value="ALL">All Active</option>
+            <option value="ALL">All Sessions</option>
             <option value="BELOW_70">Integrity &lt; 70%</option>
             <option value="VIOLATIONS">With Violations</option>
           </select>
@@ -218,13 +226,17 @@ export default function LiveProctoring() {
                 >
                   <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "12px" }}>
                     <h3 style={{ margin: 0, fontSize: "1.1rem", fontWeight: "600" }}>{c.candidate_name}</h3>
-                    <span style={{ padding: "4px 8px", borderRadius: "12px", fontSize: "0.8rem", color: "white", background: '#4caf50' }}>
-                      ACTIVE
+                    <span style={{ padding: "4px 8px", borderRadius: "12px", fontSize: "0.8rem", color: "white", background: c.status === 'COMPLETED' ? '#2196f3' : c.status === 'TERMINATED' ? '#d32f2f' : '#4caf50' }}>
+                      {c.status}
                     </span>
                   </div>
 
                   <div style={{ background: "#000", height: "180px", borderRadius: "8px", marginBottom: "12px", display: "flex", alignItems: "center", justifyContent: "center", overflow: "hidden", position: "relative" }}>
-                    {watchingId === c.candidate_id ? (
+                    {c.status === 'COMPLETED' ? (
+                      <span style={{ color: "white", fontSize: "1.2rem", fontWeight: "500" }}>Interview Completed</span>
+                    ) : c.status === 'TERMINATED' ? (
+                      <span style={{ color: "#ef5350", fontSize: "1.2rem", fontWeight: "500" }}>Interview Terminated</span>
+                    ) : watchingId === c.candidate_id ? (
                       <>
                         <video
                           id={`video-${c.candidate_id}`}
@@ -244,7 +256,6 @@ export default function LiveProctoring() {
                         </button>
                       </>
                     ) : (
-                      /* Fix: removed auto-connect. Admin must click "Watch Live" */
                       <button
                         onClick={() => initiateWebRTC(c.candidate_id)}
                         style={{ padding: "10px 20px", background: "#1976d2", color: "white", border: "none", borderRadius: "6px", cursor: "pointer", fontWeight: "600" }}
@@ -273,18 +284,22 @@ export default function LiveProctoring() {
                   </div>
 
                   <div style={{ display: "flex", gap: "8px" }}>
-                    <button
-                      onClick={() => sendWarning(c.candidate_id, c.session_id)}
-                      style={{ flex: 1, padding: "8px", background: "#ff9800", color: "white", border: "none", borderRadius: "4px", cursor: "pointer" }}
-                    >
-                      Warn
-                    </button>
-                    <button
-                      onClick={() => terminateInterview(c.candidate_id, c.session_id)}
-                      style={{ flex: 1, padding: "8px", background: "#d32f2f", color: "white", border: "none", borderRadius: "4px", cursor: "pointer" }}
-                    >
-                      Stop
-                    </button>
+                    {c.status === 'ACTIVE' && (
+                      <>
+                        <button
+                          onClick={() => sendWarning(c.candidate_id, c.session_id)}
+                          style={{ flex: 1, padding: "8px", background: "#ff9800", color: "white", border: "none", borderRadius: "4px", cursor: "pointer" }}
+                        >
+                          Warn
+                        </button>
+                        <button
+                          onClick={() => terminateInterview(c.candidate_id, c.session_id)}
+                          style={{ flex: 1, padding: "8px", background: "#d32f2f", color: "white", border: "none", borderRadius: "4px", cursor: "pointer" }}
+                        >
+                          Stop
+                        </button>
+                      </>
+                    )}
                     <Link
                       to={`/admin/proctoring/summary/${c.candidate_id}`}
                       style={{ flex: 1, textAlign: "center", padding: "8px", background: "#f5f5f5", color: "#333", border: "1px solid #ccc", borderRadius: "4px", textDecoration: "none" }}
