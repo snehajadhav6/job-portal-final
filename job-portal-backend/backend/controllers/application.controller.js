@@ -8,7 +8,7 @@ const { sendInterviewSetupNotification } = require('../services/notificationServ
 const { extractResumeText } = require('../utils/resumeParser');
 const { extractResumeEntities } = require('../services/hfResumeExtractor');
 const { scoreResumeEntities } = require('../services/atsScoring');
-const { sendAssessmentNotification, sendInterviewShortlistNotification, createAtsStatusNotification } = require('../services/notificationService');
+const { sendAssessmentNotification, sendInterviewShortlistNotification, createAtsStatusNotification, sendHiredNotification } = require('../services/notificationService');
 
 const applyForJob = async (req, res) => {
   try {
@@ -177,6 +177,10 @@ const updateApplicationStatus = async (req, res) => {
     await Application.updateStatus(req.params.id, status);
 
     const user = await User.findById(application.user_id);
+    
+    if (status === 'hired') {
+      await sendHiredNotification(user.id, user.email, user.name, job.title, company?.name);
+    }
     if (status === 'interview') {
       const linkRow = await InterviewLink.createForUser(application.user_id);
       const interviewLink = `http://localhost:5174/interview?token=${linkRow.token}`;

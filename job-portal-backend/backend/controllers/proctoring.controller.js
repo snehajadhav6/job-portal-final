@@ -114,30 +114,14 @@ exports.reportViolation = async (req, res) => {
       io.of('/admin').emit('integrity-score-update', { candidateId, sessionId, integrityScore: newIntegrity });
     }
 
-    const warningsResult = await pool.query(
-      "SELECT COUNT(*) FROM warnings_log WHERE proctoring_session_id = $1",
+    const violationsResult = await pool.query(
+      "SELECT COUNT(*) FROM violations_log WHERE proctoring_session_id = $1",
       [sessionId]
     );
-    const existingWarnings = parseInt(warningsResult.rows[0].count);
-    const newWarningNumber = existingWarnings + 1;
+    const totalViolations = parseInt(violationsResult.rows[0].count);
 
-    if (newWarningNumber <= 3) {
-      await pool.query(
-        "INSERT INTO warnings_log (proctoring_session_id, warning_number, message) VALUES ($1, $2, $3)",
-        [sessionId, newWarningNumber, "Automatic warning for violation"]
-      );
-
-      if (io) {
-        io.of('/candidate').to(`candidate-${candidateId}`).emit('receive-warning', {
-          warningNumber: newWarningNumber,
-          message: `Warning ${newWarningNumber}/3: Violation detected (${violationType}). The next warning may result in termination.`
-        });
-        io.of('/admin').emit('warning-sent', { candidateId, sessionId, warningNumber: newWarningNumber });
-      }
-    }
-
-    if (newWarningNumber >= 3) {
-      return exports.executeTermination(candidateId, sessionId, 'MAX_WARNINGS_EXCEEDED', io, res);
+    if (totalViolations >= 3) {
+      return exports.executeTermination(candidateId, sessionId, 'MAX_VIOLATIONS_EXCEEDED', io, res);
     }
 
     res.status(200).json({ message: 'Violation reported', integrityScore: newIntegrity });

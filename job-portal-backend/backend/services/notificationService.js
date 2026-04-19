@@ -181,11 +181,32 @@ Hiring Team at ${companyName || 'our company'}`;
   }
 }
 
+async function sendHiredNotification(userId, email, candidateName, jobTitle, companyName) {
+  const subject = `Congratulations! You've been hired - ${jobTitle} at ${companyName || 'our company'}`;
+  const text = `Dear ${candidateName},
+
+Congratulations! We are thrilled to inform you that you have been hired for the ${jobTitle} position at ${companyName || 'our company'}.
+Our HR team will reach out to you shortly with onboarding details.
+
+Best regards,
+Hiring Team at ${companyName || 'our company'}`;
+
+  try {
+    await sendEmail(email, subject, text);
+  } catch (emailErr) {
+    console.error('sendHiredNotification: email failed (continuing):', emailErr.message);
+  }
+
+  const dbMessage = `Congratulations! You have been hired for the ${jobTitle} position at ${companyName || 'our company'}. Our HR team will contact you shortly with next steps.`;
+  await insertNotification(userId, dbMessage, 'hired');
+}
+
 module.exports = {
   sendAssessmentNotification,
   sendInterviewShortlistNotification,
   sendResumeShortlistNotification,
   createAtsStatusNotification,
   sendInterviewSetupNotification,
-  sendPostAssessmentRejectionNotification
+  sendPostAssessmentRejectionNotification,
+  sendHiredNotification
 };
