@@ -8,7 +8,6 @@ const {
 
 const safeJsonParse = require("../utils/safeJson");
 
-// VERIFY USER
 exports.verifyUser = async (req, res) => {
   const { email } = req.body;
 
@@ -51,12 +50,10 @@ exports.verifyUser = async (req, res) => {
   }
 };
 
-// GENERATE QUESTIONS
 exports.generateQuestions = async (req, res) => {
   const { token } = req.params;
 
   try {
-    // 1. Validate token
     const link = await pool.query(
       "SELECT * FROM interview_links WHERE token=$1",
       [token]
@@ -78,7 +75,6 @@ exports.generateQuestions = async (req, res) => {
 
     const userId = linkData.user_id;
 
-    // 2. Get latest resume from applications table
     const application = await pool.query(
       `SELECT resume_url 
        FROM applications 
@@ -96,14 +92,12 @@ exports.generateQuestions = async (req, res) => {
 
     const resumeUrl = application.rows[0].resume_url;
 
-    // Optional safety check
     if (!resumeUrl.startsWith("http")) {
       return res.status(400).json({
         error: "Invalid resume URL format",
       });
     }
 
-    // 3. Extract resume text
     const resumeText = resumeUrl;
 
     if (!resumeText || resumeText.length < 50) {
@@ -112,7 +106,6 @@ exports.generateQuestions = async (req, res) => {
       });
     }
 
-    // 4. Resume Analysis (AI)
     const rawResume = await callAI(resumeAnalysisPrompt(resumeText));
     const resumeData = safeJsonParse(rawResume);
 
@@ -123,7 +116,6 @@ exports.generateQuestions = async (req, res) => {
       });
     }
 
-    // 5. Generate Questions (AI)
     const rawQuestions = await callAI(questionPrompt(resumeData));
     const questions = safeJsonParse(rawQuestions);
 
@@ -134,7 +126,6 @@ exports.generateQuestions = async (req, res) => {
       });
     }
 
-    // 6. Send response
     res.json(questions);
 
   } catch (err) {
@@ -143,7 +134,6 @@ exports.generateQuestions = async (req, res) => {
   }
 };
 
-// SUBMIT INTERVIEW
 exports.submitInterview = async (req, res) => {
   const { token, answers } = req.body;
 

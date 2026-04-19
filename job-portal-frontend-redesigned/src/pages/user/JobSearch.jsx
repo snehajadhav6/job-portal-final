@@ -90,9 +90,7 @@ export default function JobSearch() {
 
       <div className="flex flex-col lg:flex-row gap-6 lg:gap-8 mt-2">
 
-        {/* Filters — collapsible on mobile, sticky sidebar on desktop */}
         <aside className="w-full lg:w-64 lg:sticky lg:top-6 lg:self-start">
-          {/* Mobile toggle */}
           <button
             className="lg:hidden w-full flex items-center justify-between px-4 py-3 bg-[var(--bg-primary)] border border-[var(--border-color)] rounded-xl text-sm font-semibold text-[var(--text-primary)] mb-2"
             onClick={() => setFiltersOpen((v) => !v)}
@@ -108,7 +106,6 @@ export default function JobSearch() {
               </h3>
               <div className="flex flex-col gap-3">
                 <h4 className="text-sm font-semibold text-[var(--text-secondary)]">Job Type</h4>
-                {/* On mobile show checkboxes in a row; column on desktop */}
                 <div className="flex flex-row flex-wrap lg:flex-col gap-3 lg:gap-3">
                   {jobTypeOptions.map((option) => (
                     <label
@@ -130,7 +127,6 @@ export default function JobSearch() {
           </div>
         </aside>
 
-        {/* Job Feed */}
         <main className="flex-1 min-w-0 flex flex-col gap-4">
           <p className="text-sm text-[var(--text-secondary)]">
             {filteredJobs.length} job{filteredJobs.length !== 1 ? "s" : ""} found
@@ -173,7 +169,6 @@ export default function JobSearch() {
                   </div>
                 </div>
 
-                {/* Save button */}
                 <div className="flex sm:flex-col justify-end items-end gap-2 flex-shrink-0">
                   <button
                     onClick={(e) => {

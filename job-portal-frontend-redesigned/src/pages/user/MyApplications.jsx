@@ -95,7 +95,6 @@ export default function MyApplications() {
   return (
     <div className="flex flex-col gap-6 sm:gap-8 h-full">
 
-      {/* Header */}
       <header className="flex flex-col sm:flex-row sm:justify-between sm:items-end gap-4">
         <div>
           <h1 className="text-2xl sm:text-3xl font-bold text-[var(--color-primary)] tracking-tight">
@@ -127,7 +126,6 @@ export default function MyApplications() {
         - Desktop (xl):   5-column grid (all stages side by side)
       */}
 
-      {/* Mobile: stacked accordion-style stages */}
       <div className="flex flex-col gap-4 md:hidden">
         {stages.map((stage) => {
           const stageApps = filteredApplications.filter((app) => app.status === stage);
@@ -158,7 +156,6 @@ export default function MyApplications() {
         })}
       </div>
 
-      {/* Tablet: 2-col grid */}
       <div className="hidden md:grid xl:hidden grid-cols-2 gap-6 items-start pb-8">
         {stages.map((stage) => {
           const stageApps = filteredApplications.filter((app) => app.status === stage);
@@ -168,7 +165,6 @@ export default function MyApplications() {
         })}
       </div>
 
-      {/* Desktop: all 5 columns */}
       <div className="hidden xl:grid grid-cols-5 gap-4 items-start pb-8">
         {stages.map((stage) => {
           const stageApps = filteredApplications.filter((app) => app.status === stage);

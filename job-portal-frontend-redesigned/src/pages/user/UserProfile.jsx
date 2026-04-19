@@ -112,7 +112,6 @@ export default function UserProfile() {
   return (
     <div className="flex flex-col gap-6 sm:gap-8 h-full max-w-4xl pb-12">
 
-      {/* Header — stacks on mobile */}
       <header className="flex flex-col sm:flex-row sm:justify-between sm:items-end gap-4">
         <div>
           <h1 className="text-2xl sm:text-3xl font-bold text-[var(--color-primary)] tracking-tight">
@@ -140,7 +139,6 @@ export default function UserProfile() {
       {error   && <div className="p-3 bg-red-100 text-red-700 rounded-xl text-sm">{error}</div>}
       {success && <div className="p-3 bg-green-100 text-green-700 rounded-xl text-sm">{success}</div>}
 
-      {/* Basic Information */}
       <section className="bg-[var(--bg-primary)] p-5 sm:p-6 rounded-xl border border-[var(--border-color)] shadow-sm flex flex-col gap-6">
         <h2 className="text-lg sm:text-xl font-bold text-[var(--color-primary)]">
           Basic Information
@@ -192,7 +190,6 @@ export default function UserProfile() {
           />
         </div>
 
-        {/* Custom URL — prefix + input, wraps gracefully on mobile */}
         <div className="flex flex-col gap-2">
           <label className="text-sm font-semibold text-[var(--text-secondary)]">
             Custom Profile URL
@@ -212,7 +209,6 @@ export default function UserProfile() {
         </div>
       </section>
 
-      {/* Resume */}
       <section className="bg-[var(--bg-primary)] p-5 sm:p-6 rounded-xl border border-[var(--border-color)] shadow-sm flex flex-col gap-4">
         <h2 className="text-lg sm:text-xl font-bold text-[var(--color-primary)]">Resume</h2>
         <input
@@ -229,7 +225,6 @@ export default function UserProfile() {
         )}
       </section>
 
-      {/* Skills */}
       <section className="bg-[var(--bg-primary)] p-5 sm:p-6 rounded-xl border border-[var(--border-color)] shadow-sm flex flex-col gap-4">
         <h2 className="text-lg sm:text-xl font-bold text-[var(--color-primary)]">Skills</h2>
         <div className="flex flex-wrap gap-2">
@@ -278,7 +273,6 @@ export default function UserProfile() {
         )}
       </section>
 
-      {/* Portfolio & Projects */}
       <section className="bg-[var(--bg-primary)] p-5 sm:p-6 rounded-xl border border-[var(--border-color)] shadow-sm flex flex-col gap-4">
         <h2 className="text-lg sm:text-xl font-bold text-[var(--color-primary)]">
           Portfolio & Projects

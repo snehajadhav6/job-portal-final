@@ -19,7 +19,6 @@ const getStats = async (req, res) => {
       "SELECT COUNT(*)::int AS count FROM applications"
     );
 
-    // Recent jobs posted (last 3)
     const { rows: recentJobs } = await pool.query(`
       SELECT j.id, j.title, j.created_at, c.name AS company_name
       FROM jobs j
@@ -28,7 +27,6 @@ const getStats = async (req, res) => {
       LIMIT 3
     `);
 
-    // Recent applications (last 3)
     const recentApps = await Application.getRecentActivity(3);
 
     res.json({
@@ -47,7 +45,6 @@ const getStats = async (req, res) => {
 const getUsers = async (req, res) => {
   try {
     const users = await User.findAllClients();
-    // For each user, get their recent applications
     const usersWithApps = await Promise.all(users.map(async (user) => {
       const { rows } = await pool.query(`
         SELECT a.id, a.status, j.title AS job_title, j.id AS job_id

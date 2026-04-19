@@ -146,12 +146,9 @@ export default function InterviewPage() {
     };
   }, []);
 
-  // Proctoring Setup Effect
   useEffect(() => {
-    // Ideally candidateId would come from logged-in user context
     const mockCandidateId = 3;
 
-    // Setup Socket
     const socket = io(PROCTORING_SERVER_URL, { transports: ["websocket", "polling"] });
     socketRef.current = socket;
 
@@ -169,13 +166,11 @@ export default function InterviewPage() {
       navigate("/");
     });
 
-    // WebRTC connection handlers
     socket.on("webrtc-offer", async ({ adminId, offer }) => {
       try {
         const pc = new RTCPeerConnection({ iceServers: [{ urls: "stun:stun.l.google.com:19302" }] });
         peerConnectionsRef.current[adminId] = pc;
 
-        // Add our webcam stream to the connection so admin can see it
         if (mediaStreamRef.current) {
           mediaStreamRef.current.getTracks().forEach(track => {
             pc.addTrack(track, mediaStreamRef.current);
@@ -214,7 +209,6 @@ export default function InterviewPage() {
       }
     });
 
-    // Start Session API
     fetch(`${PROCTORING_API_URL}/start-session`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -226,14 +220,12 @@ export default function InterviewPage() {
       })
       .catch((err) => console.error("Error starting proctoring session:", err));
 
-    // Initialize TFJS Model
     cocoSsd.load().then((loadedModel) => {
       modelRef.current = loadedModel;
       console.log("Object detection model loaded.");
     });
 
 
-    // Tab Switch Listener
     const handleVisibilityChange = () => {
       if (document.hidden && proctoringSessionId) {
         fetch(`${PROCTORING_API_URL}/report-violation`, {
@@ -252,7 +244,6 @@ export default function InterviewPage() {
 
     document.addEventListener("visibilitychange", handleVisibilityChange);
 
-    // AI Vision Detection Loop
     const visionInterval = setInterval(async () => {
       if (!modelRef.current || !videoRef.current || !proctoringSessionId) return;
       if (Date.now() - violationThrottleRef.current < 5000) return; // Wait 5s before posting another AI violation
@@ -271,7 +262,6 @@ export default function InterviewPage() {
         let violationType = null;
         if (mobileDetected) violationType = "MOBILE_DETECTED";
         else if (personCount > 1) violationType = "MULTIPLE_FACES";
-        // To also detect if the face goes missing, you could check if personCount === 0.
 
         if (violationType) {
           violationThrottleRef.current = Date.now();

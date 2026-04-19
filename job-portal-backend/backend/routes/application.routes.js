@@ -23,7 +23,6 @@ router.get('/my', roleMiddleware(['client']), getMyApplications);
 router.get('/job/:id', roleMiddleware(['manager']), getApplicationsForJob);
 router.put('/:id', roleMiddleware(['manager']), updateApplicationStatus);
 
-// API Endpoints for ATS Test evaluation & Manager controls
 router.post('/update-test-score', updateTestScore);
 router.patch('/manager-approve/:id', roleMiddleware(['manager']), managerApproveForInterview);
 

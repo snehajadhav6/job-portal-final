@@ -126,7 +126,6 @@ export default function Users() {
         />
       </header>
 
-      {/* Mobile & Tablet: Card list */}
       <section className="flex flex-col gap-3 md:hidden">
         {filteredUsers.length === 0 ? (
           <div className="bg-[var(--bg-primary)] rounded-xl border border-[var(--border-color)] p-6 text-center text-[var(--text-secondary)] italic text-sm">
@@ -193,7 +192,6 @@ export default function Users() {
         )}
       </section>
 
-      {/* Desktop: Table */}
       <section className="hidden md:block bg-[var(--bg-primary)] rounded-xl border border-[var(--border-color)] shadow-sm overflow-x-auto">
         <table className="w-full text-left border-collapse min-w-[700px]">
           <thead>

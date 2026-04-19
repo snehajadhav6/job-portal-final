@@ -2,12 +2,10 @@ import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import ProtectedRoute from "./ProtectedRoute";
 
-// layouts
 import AdminLayout from "../layouts/AdminLayout";
 import CompanyLayout from "../layouts/CompanyLayout";
 import UserLayout from "../pages/user/UserLayout";
 
-// pages
 import Login from "../pages/auth/Login";
 import Register from "../pages/auth/Register";
 import ResetPassword from "../pages/auth/ResetPassword";
@@ -49,20 +47,15 @@ export default function AppRoutes() {
       <Routes>
 
         <Route path="/" element={<Landing />} />
-        {/* Auto redirect after login */}
         <Route path="/redirect" element={<RoleRedirect />} />
 
-        {/* <Route path='/legal' element ={<LegalLayout/>} > */}
           <Route path="legal/terms" element={<Terms />} />
           <Route path="legal/privacy" element={<Privacy />} />
-        {/* </Route> */}
 
-        {/* Auth */}
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
         <Route path="/reset-password" element={<ResetPassword />} />
 
-        {/* User */}
         <Route
           path="/user"
           element={
@@ -80,7 +73,6 @@ export default function AppRoutes() {
           <Route path="apply/:id" element={<ApplyJob />} />
         </Route>
 
-        {/* Admin */}
         <Route
           path="/admin"
           element={
@@ -98,7 +90,6 @@ export default function AppRoutes() {
           <Route path="proctoring/summary/:id" element={<ProctoringSummary />} />
         </Route>
 
-        {/* Company */}
         <Route
           path="/company"
           element={

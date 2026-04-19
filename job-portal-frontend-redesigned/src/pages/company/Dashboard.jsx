@@ -58,7 +58,6 @@ const CompanyDashboard = () => {
   return (
     <div className="p-4 sm:p-6 space-y-6 bg-[var(--bg-primary)] min-h-screen">
 
-      {/* Header */}
       <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-1">
         <div>
           <h1 className="text-2xl font-bold text-[var(--text-primary)]">Dashboard</h1>
@@ -76,7 +75,6 @@ const CompanyDashboard = () => {
         </div>
       </div>
 
-      {/* Stat cards — 2 cols on mobile/tablet, 4 on desktop */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         {[
           { label: "Total Jobs", value: data.totalJobs, Icon: Briefcase },
@@ -99,7 +97,6 @@ const CompanyDashboard = () => {
         ))}
       </div>
 
-      {/* Recent Applications table */}
       <div className="bg-[var(--bg-secondary)] rounded-lg shadow-sm border border-[var(--border-color)]">
         <div className="p-4 border-b border-[var(--border-color)] flex justify-between items-center">
           <h2 className="text-lg font-semibold text-[var(--text-primary)]">Recent Applications</h2>
@@ -110,7 +107,6 @@ const CompanyDashboard = () => {
             View all <Eye className="h-4 w-4" />
           </button>
         </div>
-        {/* Horizontal scroll wrapper so table never breaks layout on mobile */}
         <div className="overflow-x-auto">
           <table className="w-full min-w-[480px]">
             <thead className="bg-[var(--bg-primary)]">
@@ -156,7 +152,6 @@ const CompanyDashboard = () => {
         </div>
       </div>
 
-      {/* Bottom cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div className="bg-[var(--bg-secondary)] rounded-lg shadow-sm border border-[var(--border-color)] p-4">
           <div className="flex items-center gap-2 mb-3">

@@ -40,7 +40,8 @@ const handleSubmit = async (e) => {
     navigate("/redirect");
   } catch (err) {
     console.log(err);
-    alert("Invalid credentials");
+    const errorMessage = err.response?.data?.message || "Invalid credentials";
+    alert(errorMessage);
   }
 };
   return (
@@ -54,7 +55,6 @@ const handleSubmit = async (e) => {
 
         <form onSubmit={handleSubmit} className="flex flex-col gap-4">
 
-          {/* Email */}
           <div className="flex items-center border border-[var(--border-color)] rounded-lg px-3">
             <Mail size={18} className="text-[var(--text-secondary)]" />
             <input
@@ -66,7 +66,6 @@ const handleSubmit = async (e) => {
             />
           </div>
 
-          {/* Password */}
           <div className="flex items-center border border-[var(--border-color)] rounded-lg px-3">
             <Lock size={18} className="text-[var(--text-secondary)]" />
             <input
@@ -78,7 +77,6 @@ const handleSubmit = async (e) => {
             />
           </div>
 
-          {/* Role Select (for demo) */}
           <select
             className="border border-[var(--border-color)] rounded-lg px-3 py-3 bg-transparent"
             onChange={(e) => setForm({ ...form, role: e.target.value })}
@@ -88,14 +86,12 @@ const handleSubmit = async (e) => {
             <option value="admin">Admin</option>
           </select>
 
-          {/* Forgot Password Link */}
           <div className="flex justify-end mt-[-8px] mb-2">
             <Link to="/reset-password" className="text-sm text-[var(--color-primary)] hover:underline font-medium">
               Forgot Password?
             </Link>
           </div>
 
-          {/* Button */}
           <button
             type="submit"
             className="bg-[var(--color-primary)] text-white py-3 rounded-lg font-semibold hover:opacity-90"
@@ -104,7 +100,6 @@ const handleSubmit = async (e) => {
           </button>
         </form>
 
-        {/* Footer */}
         <p className="text-sm text-center mt-6 text-[var(--text-secondary)]">
           Don’t have an account?{" "}
           <Link to="/register" className="text-[var(--color-primary)] font-medium">

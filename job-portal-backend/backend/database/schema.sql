@@ -107,3 +107,9 @@ CREATE TABLE interview_results (
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   FOREIGN KEY (user_id) REFERENCES users(id)
 );
+
+-- New tables added as migration-runner compatible statements (prefixed with -- so they run individually with error handling):
+
+-- CREATE TABLE IF NOT EXISTS token_blacklist (id SERIAL PRIMARY KEY, token TEXT NOT NULL, blacklisted_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP, expires_at TIMESTAMP NOT NULL);
+-- CREATE INDEX IF NOT EXISTS idx_token_blacklist_token ON token_blacklist (token);
+-- ALTER TABLE proctoring_sessions ADD COLUMN IF NOT EXISTS last_heartbeat TIMESTAMP DEFAULT CURRENT_TIMESTAMP;

@@ -89,7 +89,6 @@ const MobileThemeIcon = THEME_OPTIONS.find(o => o.value === theme)?.icon ?? Sun;
   return (
     <div className="flex min-h-screen bg-[var(--bg-secondary,#f3f4f6)]">
 
-      {/* Mobile overlay */}
       {sidebarOpen && (
         <div
           className="fixed inset-0 bg-black/50 z-20 lg:hidden"
@@ -97,7 +96,6 @@ const MobileThemeIcon = THEME_OPTIONS.find(o => o.value === theme)?.icon ?? Sun;
         />
       )}
 
-      {/* Sidebar */}
       <aside
         className={`
           fixed top-0 left-0 h-[100vh] w-64 bg-black text-white z-30 flex flex-col
@@ -106,7 +104,6 @@ const MobileThemeIcon = THEME_OPTIONS.find(o => o.value === theme)?.icon ?? Sun;
           lg:static lg:translate-x-0 lg:flex
         `}
       >
-        {/* Sidebar header */}
         <div className="flex items-center justify-between p-5 border-b border-white/10">
           <h1 className="text-xl font-bold tracking-tight">Admin Panel</h1>
           <button
@@ -117,7 +114,6 @@ const MobileThemeIcon = THEME_OPTIONS.find(o => o.value === theme)?.icon ?? Sun;
           </button>
         </div>
 
-        {/* Nav links */}
         <nav className="flex flex-col gap-1 p-4 flex-1">
           {navLinks.map(({ to, label, icon: Icon, exact }) => (
             <Link
@@ -138,7 +134,6 @@ const MobileThemeIcon = THEME_OPTIONS.find(o => o.value === theme)?.icon ?? Sun;
           ))}
         </nav>
 
-        {/* Logout at bottom of sidebar (desktop) */}
         <ThemeToggle />
         <div className="p-4 border-t border-white/10 hidden lg:block">
           <button
@@ -150,13 +145,10 @@ const MobileThemeIcon = THEME_OPTIONS.find(o => o.value === theme)?.icon ?? Sun;
         </div>
       </aside>
 
-      {/* Main content */}
       <div className="flex-1 flex flex-col min-w-0">
 
-        {/* Topbar */}
         <header className="flex justify-between items-center px-4 sm:px-6 py-4 bg-white shadow-sm sticky top-0 z-10">
           <div className="flex items-center gap-3">
-            {/* Hamburger - mobile/tablet only */}
             <button
               onClick={() => setSidebarOpen(true)}
               className="lg:hidden text-gray-600 hover:text-gray-900 transition-colors p-1"
@@ -180,7 +172,6 @@ const MobileThemeIcon = THEME_OPTIONS.find(o => o.value === theme)?.icon ?? Sun;
           </button>
         </header>
 
-        {/* Page content */}
         <main className="flex-1 p-4 sm:p-6 lg:p-8 overflow-auto">
           <Outlet />
         </main>

@@ -1,29 +1,6 @@
-// Resume Analysis
-// exports.resumeAnalysisPrompt = (resumeText) => [
-//   {
-//     role: "system",
-//     content: `
-// You are an expert technical recruiter.
 
-// Extract structured data.
 
-// Return ONLY valid JSON:
-// {
-//   "skills": [],
-//   "projects": [],
-//   "experience_level": "",
-//   "strengths": [],
-//   "weaknesses": []
-// }
 
-// No extra text.
-// `
-//   },
-//   {
-//     role: "user",
-//     content: resumeText
-//   }
-// ];
 
 exports.resumeAnalysisPrompt = (resumeUrl) => [
   {
@@ -51,7 +28,6 @@ Return ONLY JSON:
   }
 ];
 
-// Question Generation
 exports.questionPrompt = (resumeData) => [
   {
     role: "system",
@@ -81,7 +57,6 @@ Return ONLY JSON:
   }
 ];
 
-// Evaluation
 exports.evaluationPrompt = (qaList) => [
   {
     role: "system",

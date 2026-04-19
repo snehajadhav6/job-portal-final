@@ -122,7 +122,6 @@ export default function PostJob() {
             />
           </div>
 
-          {/* Location + Type */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div className="min-w-0">
               <label className="block text-sm font-medium text-[var(--text-primary)] mb-1">
@@ -163,7 +162,6 @@ export default function PostJob() {
             </div>
           </div>
 
-          {/* Salary */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div className="min-w-0">
               <label className="block text-sm font-medium text-[var(--text-primary)] mb-1">
@@ -206,7 +204,6 @@ export default function PostJob() {
             </div>
           </div>
 
-          {/* Description */}
           <div>
             <label className="block text-sm font-medium text-[var(--text-primary)] mb-1">
               Job Description *
@@ -225,7 +222,6 @@ export default function PostJob() {
             </div>
           </div>
 
-          {/* Buttons — stack on mobile, row on sm+ */}
           <div className="flex flex-col sm:flex-row justify-end gap-3 pt-4">
             <button
               type="button"

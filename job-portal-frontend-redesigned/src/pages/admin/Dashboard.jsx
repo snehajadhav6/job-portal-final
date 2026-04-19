@@ -88,7 +88,6 @@ export default function AdminDashboard() {
         <p className="text-[var(--text-secondary)] mt-1 sm:mt-2 text-sm sm:text-base">Monitor platform health and recent activities.</p>
       </header>
 
-      {/* Stats grid — 2 cols on mobile, 4 on lg */}
       <section className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 sm:gap-6">
         {statCards.map(({ label, value, accent }) => (
           <div
@@ -105,7 +104,6 @@ export default function AdminDashboard() {
         ))}
       </section>
 
-      {/* Activity feed */}
       <section className="bg-[var(--bg-primary)] rounded-xl border border-[var(--border-color)] shadow-sm overflow-hidden flex flex-col">
         <div className="p-4 sm:p-6 border-b border-[var(--border-color)]">
           <h2 className="text-lg sm:text-xl font-bold text-[var(--color-primary)]">Recent Activity</h2>

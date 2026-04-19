@@ -60,7 +60,6 @@ export default function UserLayout() {
   const { theme, setTheme } = useTheme();
   const [open, setOpen] = useState(false);
 
-  // Cycle through themes for the mobile topbar icon button
   const cycleTheme = () => {
     const order = ["light", "dark", "system"];
     const next = order[(order.indexOf(theme) + 1) % order.length];
@@ -79,11 +78,9 @@ export default function UserLayout() {
   return (
     <div className="flex min-h-screen bg-[var(--bg-secondary)] text-[var(--text-primary)]">
 
-      {/* ── Mobile Topbar ── */}
       <div className="lg:hidden fixed top-0 left-0 right-0 z-20 bg-[var(--bg-primary)] border-b border-[var(--border-color)] flex items-center justify-between px-4 py-3">
         <h2 className="text-lg font-bold text-[var(--color-primary)]">Shnoor</h2>
         <div className="flex items-center gap-1">
-          {/* Single-click cycle icon for mobile */}
           <button
             onClick={cycleTheme}
             title={`Theme: ${THEME_OPTIONS.find(o => o.value === theme)?.label}`}
@@ -103,7 +100,6 @@ export default function UserLayout() {
         </div>
       </div>
 
-      {/* ── Sidebar ── */}
       <aside className={`
         fixed lg:sticky lg:top-0 lg:h-screen lg:overflow-y-auto
         z-30 top-0 left-0 h-full w-64
@@ -112,7 +108,6 @@ export default function UserLayout() {
         transform transition-transform duration-300
         ${open ? "translate-x-0" : "-translate-x-full"} lg:translate-x-0
       `}>
-        {/* Close btn — mobile only */}
         <button
           className="lg:hidden mb-6 self-end p-1 text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
           onClick={() => setOpen(false)}
@@ -147,7 +142,6 @@ export default function UserLayout() {
           ))}
         </nav>
 
-        {/* Theme toggle — full dropdown in sidebar */}
         <div className="mt-8 pt-6 border-t border-[var(--border-color)]">
           <ThemeToggle />
         </div>
@@ -160,7 +154,6 @@ export default function UserLayout() {
         </button>
       </aside>
 
-      {/* Backdrop — mobile */}
       {open && (
         <div
           className="fixed inset-0 bg-black/40 z-20 lg:hidden"
@@ -168,7 +161,6 @@ export default function UserLayout() {
         />
       )}
 
-      {/* Main content */}
       <main className="flex-1 min-w-0 p-4 sm:p-6 lg:p-10 mt-14 lg:mt-0 overflow-y-auto">
         <Outlet />
       </main>

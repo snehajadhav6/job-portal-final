@@ -2,7 +2,19 @@ const pool = require('../config/db');
 const { v4: uuidv4 } = require('uuid');
 
 class InterviewLink {
+  /**
+   * Invalidates all unused (active) interview links for the given user,
+   * then creates a fresh one. This prevents duplicate valid links.
+   */
   static async createForUser(userId) {
+    await pool.query(
+      `UPDATE interview_links
+       SET is_used = TRUE
+       WHERE user_id = $1
+         AND is_used = FALSE`,
+      [userId]
+    );
+
     for (let attempt = 0; attempt < 3; attempt++) {
       const token = uuidv4();
       try {
@@ -57,4 +69,3 @@ class InterviewLink {
 }
 
 module.exports = InterviewLink;
-

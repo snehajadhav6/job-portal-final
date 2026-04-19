@@ -16,7 +16,6 @@ export function ThemeProvider({ children }) {
       } else if (t === "light") {
         root.classList.remove("dark");
       } else {
-        // system
         const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
         root.classList.toggle("dark", prefersDark);
       }
@@ -25,7 +24,6 @@ export function ThemeProvider({ children }) {
     applyTheme(theme);
     localStorage.setItem("theme", theme);
 
-    // Re-apply if system preference changes while "system" mode is active
     if (theme === "system") {
       const mq = window.matchMedia("(prefers-color-scheme: dark)");
       const handler = (e) => root.classList.toggle("dark", e.matches);

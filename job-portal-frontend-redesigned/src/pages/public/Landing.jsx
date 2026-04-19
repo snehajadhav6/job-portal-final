@@ -15,7 +15,6 @@ export default function Landing() {
 
       <Navbar />
 
-      {/* HERO */}
       <section className="relative h-[100vh] flex items-center justify-center text-center">
         <img
           src={herobg}
@@ -47,7 +46,6 @@ export default function Landing() {
         </div>
       </section>
 
-      {/* ABOUT */}
       <section className="py-16 px-6 text-center max-w-4xl mx-auto">
         <h2 className="text-3xl font-bold mb-4">About Our Platform</h2>
         <p className="text-[var(--text-secondary)]">
@@ -56,7 +54,6 @@ export default function Landing() {
         </p>
       </section>
 
-      {/* SERVICES */}
       <section className="py-16 px-6 bg-[var(--bg-secondary)]">
         <h2 className="text-3xl font-bold text-center mb-10">What We Provide</h2>
         <div className="max-w-7xl mx-auto grid md:grid-cols-3 gap-8">
@@ -91,7 +88,6 @@ export default function Landing() {
         </div>
       </section>
 
-      {/* WHY CHOOSE US */}
       <section className="py-16 px-6 max-w-6xl mx-auto grid md:grid-cols-2 gap-10 items-center">
         <div>
           <h2 className="text-3xl font-bold mb-6">Why Choose Us</h2>
@@ -111,7 +107,6 @@ export default function Landing() {
         </div>
       </section>
 
-      {/* CTA */}
       <section className="py-16 px-6 text-center bg-[var(--color-primary)] text-white">
         <h2 className="text-3xl font-bold mb-4">Take the Next Step in Your Career</h2>
         <p className="mb-6 opacity-90">Join thousands of professionals and companies today.</p>
@@ -123,10 +118,8 @@ export default function Landing() {
         </a>
       </section>
 
-      {/* FOOTER */}
       <footer className="bg-[var(--bg-secondary)] pt-16 pb-8 border-t border-[var(--border-color)]">
 
-        {/* OUR PARTNERS */}
         <div className="max-w-7xl mx-auto px-6 mb-12 border-b border-[var(--border-color)] pb-12">
           <h3 className="text-center font-bold text-[var(--text-primary)] text-xl mb-8 uppercase tracking-wider">
             Our Partners
@@ -141,7 +134,6 @@ export default function Landing() {
 
         <div className="max-w-7xl mx-auto px-6 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-10">
 
-          {/* Brand */}
           <div className="lg:col-span-1 bg-[var(--color-primary)] p-6 rounded-2xl shadow-md">
             <h2 className="text-2xl font-bold text-white tracking-tight mb-4">
               Shnoor International
@@ -151,7 +143,6 @@ export default function Landing() {
             </p>
           </div>
 
-          {/* Services */}
           <div>
             <h3 className="font-bold text-[var(--text-primary)] mb-4">Other Services</h3>
             <ul className="space-y-3 text-sm text-[var(--text-secondary)]">
@@ -163,7 +154,6 @@ export default function Landing() {
             </ul>
           </div>
 
-          {/* For Candidates */}
           <div>
             <h3 className="font-bold text-[var(--text-primary)] mb-4">For Candidates</h3>
             <ul className="space-y-3 text-sm text-[var(--text-secondary)]">
@@ -174,7 +164,6 @@ export default function Landing() {
             </ul>
           </div>
 
-          {/* For Employers */}
           <div>
             <h3 className="font-bold text-[var(--text-primary)] mb-4">For Employers</h3>
             <ul className="space-y-3 text-sm text-[var(--text-secondary)]">
@@ -185,7 +174,6 @@ export default function Landing() {
             </ul>
           </div>
 
-          {/* Connect */}
           <div>
             <h3 className="font-bold text-[var(--text-primary)] mb-4">Connect With Us</h3>
             <div className="flex gap-4 mb-6">
@@ -206,7 +194,6 @@ export default function Landing() {
           </div>
         </div>
 
-        {/* Location */}
         <div className="max-w-7xl mx-auto px-6 mt-12 flex flex-col items-center text-center">
           <h3 className="font-bold text-[var(--text-primary)] text-lg mb-2">Location</h3>
           <p className="text-[var(--text-secondary)] flex items-center justify-center gap-2">
@@ -215,7 +202,6 @@ export default function Landing() {
           </p>
         </div>
 
-        {/* Bottom Bar */}
         <div className="max-w-7xl mx-auto px-6 mt-8 pt-8 border-t border-[var(--border-color)] flex flex-col md:flex-row justify-between items-center gap-4">
           <p className="text-sm text-[var(--text-secondary)]">
             © {new Date().getFullYear()} Shnoor International LLC. All rights reserved.

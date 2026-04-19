@@ -43,7 +43,6 @@ const handleSubmit = async (e) => {
 
         <form onSubmit={handleSubmit} className="flex flex-col gap-4">
 
-          {/* Name */}
           <div className="flex items-center border border-[var(--border-color)] rounded-lg px-3">
             <User size={18} className="text-[var(--text-secondary)]" />
             <input
@@ -55,7 +54,6 @@ const handleSubmit = async (e) => {
             />
           </div>
 
-          {/* Email */}
           <div className="flex items-center border border-[var(--border-color)] rounded-lg px-3">
             <Mail size={18} className="text-[var(--text-secondary)]" />
             <input
@@ -67,7 +65,6 @@ const handleSubmit = async (e) => {
             />
           </div>
 
-          {/* Password */}
           <div className="flex items-center border border-[var(--border-color)] rounded-lg px-3">
             <Lock size={18} className="text-[var(--text-secondary)]" />
             <input
@@ -87,7 +84,6 @@ const handleSubmit = async (e) => {
           <option value="company">Company</option>
         </select>
 
-          {/* Button */}
           <button
             type="submit"
             className="bg-[var(--color-primary)] text-white py-3 rounded-lg font-semibold hover:opacity-90"
@@ -96,7 +92,6 @@ const handleSubmit = async (e) => {
           </button>
         </form>
 
-        {/* Footer */}
         <p className="text-sm text-center mt-6 text-[var(--text-secondary)]">
           Already have an account?{" "}
           <Link to="/login" className="text-[var(--color-primary)] font-medium">

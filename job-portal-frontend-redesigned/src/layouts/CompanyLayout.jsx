@@ -83,7 +83,6 @@ const MobileThemeIcon = THEME_OPTIONS.find(o => o.value === theme)?.icon ?? Sun;
   return (
     <div className="flex min-h-screen bg-gray-100">
 
-      {/* Mobile topbar */}
       <div className="lg:hidden fixed top-0 left-0 right-0 z-20 bg-gray-900 text-white flex items-center justify-between px-4 py-3">
         <h1 className="text-lg font-bold">Company Panel</h1>
         <div className="flex gap-4 items-center">
@@ -94,7 +93,6 @@ const MobileThemeIcon = THEME_OPTIONS.find(o => o.value === theme)?.icon ?? Sun;
         </div>
       </div>
 
-      {/* Sidebar */}
       <aside className={`fixed lg:sticky lg:top-0 lg:h-screen z-30 top-0 left-0 h-full w-64 bg-gray-900 text-white p-5 flex flex-col
         transform transition-transform duration-300
         ${open ? "translate-x-0" : "-translate-x-full"} lg:translate-x-0`}>
@@ -136,7 +134,6 @@ const MobileThemeIcon = THEME_OPTIONS.find(o => o.value === theme)?.icon ?? Sun;
         </button>
       </aside>
 
-      {/* Overlay */}
       {open && (
         <div
           className="fixed inset-0 bg-black/40 z-20 lg:hidden"
@@ -144,9 +141,7 @@ const MobileThemeIcon = THEME_OPTIONS.find(o => o.value === theme)?.icon ?? Sun;
         />
       )}
 
-      {/* Main */}
       <div className="flex-1 flex flex-col min-w-0">
-        {/* Desktop topbar */}
         <header className="hidden lg:flex justify-between items-center p-4 bg-white shadow">
           <h2 className="font-semibold">Company Dashboard</h2>
           <button
@@ -157,7 +152,6 @@ const MobileThemeIcon = THEME_OPTIONS.find(o => o.value === theme)?.icon ?? Sun;
           </button>
         </header>
 
-        {/* Content */}
         <main className="p-4 sm:p-6 mt-14 lg:mt-0 overflow-y-auto">
           <Outlet />
         </main>

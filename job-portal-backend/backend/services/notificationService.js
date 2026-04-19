@@ -1,6 +1,20 @@
 const sendEmail = require('../utils/sendEmail');
 const pool = require('../config/db');
 
+async function insertNotification(userId, message, statusOrType) {
+  try {
+    await pool.query(
+      `INSERT INTO notifications (user_id, message, status, created_at) VALUES ($1, $2, $3, NOW())`,
+      [userId, message, statusOrType]
+    );
+  } catch (_) {
+    await pool.query(
+      `INSERT INTO notifications (user_id, message, type) VALUES ($1, $2, $3)`,
+      [userId, message, statusOrType]
+    );
+  }
+}
+
 async function sendAssessmentNotification(userId, email, candidateName, jobRole, managerId, companyName) {
 
   if (typeof userId === 'string' && !email) {
@@ -39,7 +53,11 @@ AFTER THE TEST:
 Best regards,
 Hiring Team at ${companyName || 'our company'}`;
 
-  await sendEmail(email, subject, text);
+  try {
+    await sendEmail(email, subject, text);
+  } catch (emailErr) {
+    console.error('sendAssessmentNotification: email failed (continuing):', emailErr.message);
+  }
 
   if (userId) {
     const candidateMsgObj = {
@@ -51,40 +69,24 @@ Hiring Team at ${companyName || 'our company'}`;
         after: "Ensure submission is complete before closing. Await results via email."
       }
     };
-    try {
-      await pool.query(
-        `INSERT INTO notifications (user_id, message, status, created_at) VALUES ($1, $2, $3, NOW())`,
-        [userId, JSON.stringify(candidateMsgObj), 'assessment']
-      );
-    } catch (_) {
-      await pool.query(
-        `INSERT INTO notifications (user_id, message, type) VALUES ($1, $2, $3)`,
-        [userId, JSON.stringify(candidateMsgObj), 'assessment']
-      );
-    }
+    await insertNotification(userId, JSON.stringify(candidateMsgObj), 'assessment');
   }
 
   if (managerId) {
     const managerMsg = `Automated assessment link sent to ${candidateName} for the ${jobRole} position.`;
-    try {
-      await pool.query(
-        `INSERT INTO notifications (user_id, message, status, created_at) VALUES ($1, $2, $3, NOW())`,
-        [managerId, managerMsg, 'assessment_sent']
-      );
-    } catch (_) {
-      await pool.query(
-        `INSERT INTO notifications (user_id, message, type) VALUES ($1, $2, $3)`,
-        [managerId, managerMsg, 'assessment_sent']
-      );
-    }
+    await insertNotification(managerId, managerMsg, 'assessment_sent');
   }
 }
 
 async function sendInterviewShortlistNotification(userId, email) {
   const subject = `Interview Shortlist Status`;
   const text = `You have been shortlisted for the interview round. Interview scheduling details will be shared shortly.`;
-  
-  await sendEmail(email, subject, text);
+
+  try {
+    await sendEmail(email, subject, text);
+  } catch (emailErr) {
+    console.error('sendInterviewShortlistNotification: email failed (continuing):', emailErr.message);
+  }
 
   await pool.query(
     `INSERT INTO notifications (user_id, message, type) VALUES ($1, $2, $3)`,
@@ -96,7 +98,11 @@ async function sendResumeShortlistNotification(userId, email) {
   const text = "You have been shortlisted based on your resume evaluation. Please complete the coding assessment to proceed to the next stage.";
 
   if (email) {
-    await sendEmail(email, 'Resume Shortlist Update', text);
+    try {
+      await sendEmail(email, 'Resume Shortlist Update', text);
+    } catch (emailErr) {
+      console.error('sendResumeShortlistNotification: email failed (continuing):', emailErr.message);
+    }
   }
 
   if (userId) {
@@ -112,18 +118,7 @@ async function createAtsStatusNotification(userId, shortlistStatus) {
     ? 'Congratulations! You are shortlisted for the next round.'
     : 'Thank you for applying. Your profile will be considered for future roles.';
 
-  try {
-    await pool.query(
-      `INSERT INTO notifications (user_id, message, status, created_at) VALUES ($1, $2, $3, NOW())`,
-      [userId, message, shortlistStatus]
-    );
-  } catch (_) {
-    
-    await pool.query(
-      `INSERT INTO notifications (user_id, message, type) VALUES ($1, $2, $3)`,
-      [userId, message, shortlistStatus]
-    );
-  }
+  await insertNotification(userId, message, shortlistStatus);
 }
 
 async function sendInterviewSetupNotification(userId, email, candidateName, interviewLink, jobTitle, companyName, managerId) {
@@ -146,36 +141,18 @@ Your application status has been internally updated to "Interview Scheduled". We
 Best regards,
 Hiring Team at ${companyName || 'our company'}`;
 
-  await sendEmail(email, subject, text);
-
-  // Insert into CANDIDATE dashboard notifications
-  const dbMessage = `You have been shortlisted for the interview. Please check your interview link: ${interviewLink}`;
   try {
-    await pool.query(
-      `INSERT INTO notifications (user_id, message, status, created_at) VALUES ($1, $2, $3, NOW())`,
-      [userId, dbMessage, 'interview']
-    );
-  } catch (_) {
-    await pool.query(
-      `INSERT INTO notifications (user_id, message, type) VALUES ($1, $2, $3)`,
-      [userId, dbMessage, 'interview']
-    );
+    await sendEmail(email, subject, text);
+  } catch (emailErr) {
+    console.error('sendInterviewSetupNotification: email failed (continuing):', emailErr.message);
   }
 
-  // Insert into MANAGER dashboard notifications
+  const dbMessage = `You have been shortlisted for the interview. Please check your interview link: ${interviewLink}`;
+  await insertNotification(userId, dbMessage, 'interview');
+
   if (managerId) {
     const managerMessage = `You scheduled an interview with ${candidateName} for the ${jobTitle} role. Link: ${interviewLink}`;
-    try {
-      await pool.query(
-        `INSERT INTO notifications (user_id, message, status, created_at) VALUES ($1, $2, $3, NOW())`,
-        [managerId, managerMessage, 'interview_scheduled']
-      );
-    } catch (_) {
-      await pool.query(
-        `INSERT INTO notifications (user_id, message, type) VALUES ($1, $2, $3)`,
-        [managerId, managerMessage, 'interview_scheduled']
-      );
-    }
+    await insertNotification(managerId, managerMessage, 'interview_scheduled');
   }
 }
 
@@ -189,35 +166,18 @@ We regret to inform you that your application was not shortlisted for the interv
 Best regards,
 Hiring Team at ${companyName || 'our company'}`;
 
-  await sendEmail(email, subject, text);
-
-  const dbMessage = `We regret to inform you that your application for ${jobTitle} was not shortlisted for the interview. We encourage you to apply for future opportunities.`;
   try {
-    await pool.query(
-      `INSERT INTO notifications (user_id, message, status, created_at) VALUES ($1, $2, $3, NOW())`,
-      [userId, dbMessage, 'rejected']
-    );
-  } catch (_) {
-    await pool.query(
-      `INSERT INTO notifications (user_id, message, type) VALUES ($1, $2, $3)`,
-      [userId, dbMessage, 'rejected']
-    );
+    await sendEmail(email, subject, text);
+  } catch (emailErr) {
+    console.error('sendPostAssessmentRejectionNotification: email failed (continuing):', emailErr.message);
   }
 
-  // Insert into MANAGER dashboard notifications
+  const dbMessage = `We regret to inform you that your application for ${jobTitle} was not shortlisted for the interview. We encourage you to apply for future opportunities.`;
+  await insertNotification(userId, dbMessage, 'rejected');
+
   if (managerId) {
     const managerMessage = `You rejected candidate ${candidateName} for the ${jobTitle} role.`;
-    try {
-      await pool.query(
-        `INSERT INTO notifications (user_id, message, status, created_at) VALUES ($1, $2, $3, NOW())`,
-        [managerId, managerMessage, 'candidate_rejected']
-      );
-    } catch (_) {
-      await pool.query(
-        `INSERT INTO notifications (user_id, message, type) VALUES ($1, $2, $3)`,
-        [managerId, managerMessage, 'candidate_rejected']
-      );
-    }
+    await insertNotification(managerId, managerMessage, 'candidate_rejected');
   }
 }
 

@@ -6,7 +6,8 @@ const InterviewResult = require('../models/interviewResult.model');
 const sendEmail = require('../utils/sendEmail');
 
 function buildInterviewUrl(token) {
-  return `http://localhost:5174/interview?token=${token}`;
+  const base = process.env.FRONTEND_URL || 'http://localhost:5174';
+  return `${base}/interview?token=${token}`;
 }
 
 async function assertManagerCanAccessCandidate(managerId, candidateUserId) {
@@ -49,7 +50,12 @@ const sendInterviewLink = async (req, res) => {
     const text =
       `You have been shortlisted for the interview. Please use the link below to attend your interview.\n\n` +
       `${interviewLink}\n`;
-    await sendEmail(candidate.email, subject, text);
+
+    try {
+      await sendEmail(candidate.email, subject, text);
+    } catch (emailErr) {
+      console.error('sendInterviewLink: email failed (continuing):', emailErr.message);
+    }
 
     const panelMessage = 'You have been shortlisted for the interview. Please check your interview link.';
     try {
@@ -108,4 +114,3 @@ module.exports = {
   sendInterviewLink,
   getInterviewResults
 };
-

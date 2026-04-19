@@ -20,7 +20,6 @@ export default function ApplyJob() {
   const [error, setError] = useState("");
   const [success, setSuccess] = useState(false);
 
-  // Check if already applied on mount
   useEffect(() => {
     api.get("/applications/my")
       .then(res => {
@@ -103,7 +102,6 @@ export default function ApplyJob() {
 
       <form onSubmit={handleSubmit} className="flex flex-col gap-5">
 
-        {/* Resume */}
         <div>
           <label className="block text-sm font-semibold text-[var(--text-primary)] mb-1">
             Resume <span className="text-red-500">*</span>
@@ -118,7 +116,6 @@ export default function ApplyJob() {
           <p className="text-xs text-[var(--text-secondary)] mt-1">PDF, DOC or DOCX (max 5 MB)</p>
         </div>
 
-        {/* College Name */}
         <div>
           <label className="block text-sm font-semibold text-[var(--text-primary)] mb-1">College / University</label>
           <input
@@ -131,7 +128,6 @@ export default function ApplyJob() {
           />
         </div>
 
-        {/* CGPA + Experience row */}
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
             <label className="block text-sm font-semibold text-[var(--text-primary)] mb-1">CGPA / Percentage</label>
@@ -166,7 +162,6 @@ export default function ApplyJob() {
           </div>
         </div>
 
-        {/* Willing to Relocate */}
         <div className="flex items-center gap-3 bg-[var(--bg-secondary)] border border-[var(--border-color)] rounded-lg px-4 py-3">
           <input
             type="checkbox"
@@ -181,7 +176,6 @@ export default function ApplyJob() {
           </label>
         </div>
 
-        {/* Cover Letter */}
         <div>
           <label className="block text-sm font-semibold text-[var(--text-primary)] mb-1">Cover Letter <span className="text-[var(--text-secondary)] font-normal">(optional)</span></label>
           <textarea
@@ -194,7 +188,6 @@ export default function ApplyJob() {
           />
         </div>
 
-        {/* Actions */}
         <div className="flex gap-3 pt-2">
           <button
             type="button"

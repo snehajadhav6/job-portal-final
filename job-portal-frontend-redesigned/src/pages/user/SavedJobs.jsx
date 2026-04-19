@@ -94,7 +94,6 @@ export default function SavedJobs() {
               key={job.id}
               className="bg-[var(--bg-primary)] p-5 sm:p-6 rounded-xl border border-[var(--border-color)] shadow-sm flex flex-col sm:flex-row justify-between gap-4 group"
             >
-              {/* Job info */}
               <Link to={`/user/jobs/${job.id}`} className="flex-1 min-w-0 block cursor-pointer">
                 <h2 className="text-lg sm:text-xl font-bold text-[var(--color-primary)] group-hover:text-[var(--color-accent)] transition-colors">
                   {job.title}
@@ -112,7 +111,6 @@ export default function SavedJobs() {
                 </div>
               </Link>
 
-              {/* Actions — row on mobile (below info), column on sm+ (beside info) */}
               <div className="flex flex-row sm:flex-col items-center sm:items-end justify-between sm:justify-center gap-3 border-t sm:border-t-0 sm:border-l border-[var(--border-color)] pt-4 sm:pt-0 sm:pl-4 mt-2 sm:mt-0 flex-shrink-0">
                 <Link to={`/user/apply/${job.id}`}>
                   <button className="px-5 py-2 bg-[var(--color-primary)] text-white text-sm font-bold rounded-lg hover:bg-[var(--color-secondary)] transition-colors shadow-sm">

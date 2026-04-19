@@ -102,10 +102,8 @@ export default function JobDetails() {
 
   const backTo = user?.role === "admin" ? "/admin/jobs" : "/user/jobs";
 
-  // Action card — extracted so we can render it in two places
   const ActionCard = () => (
     <div className="bg-[var(--bg-primary)] p-5 sm:p-6 rounded-xl border border-[var(--border-color)] shadow-sm flex flex-col gap-6">
-      {/* Job meta */}
       <div className="flex flex-col gap-3 text-[var(--text-primary)]">
         <div className="flex justify-between items-center border-b border-[var(--border-color)] pb-3 gap-4">
           <span className="text-[var(--text-secondary)] font-medium text-sm">Location</span>
@@ -123,7 +121,6 @@ export default function JobDetails() {
         </div>
       </div>
 
-      {/* Actions */}
       {user?.role === "admin" ? (
         <button
           onClick={handleAdminToggleTakedown}
@@ -189,7 +186,6 @@ export default function JobDetails() {
 
       <div className="flex flex-col lg:flex-row gap-6 lg:gap-8">
 
-        {/* Left: Job Content */}
         <div className="flex-1 min-w-0 flex flex-col gap-6 sm:gap-8">
           <header className="flex flex-col gap-2">
             <h1 className="text-2xl sm:text-4xl font-extrabold text-[var(--color-primary)] tracking-tight">
@@ -205,7 +201,6 @@ export default function JobDetails() {
             )}
           </header>
 
-          {/* Action card inline on mobile — before description */}
           <div className="lg:hidden">
             <ActionCard />
           </div>
@@ -220,7 +215,6 @@ export default function JobDetails() {
           </section>
         </div>
 
-        {/* Right: Action card — desktop sidebar only */}
         <aside className="hidden lg:block w-80 flex-shrink-0">
           <div className="sticky top-8">
             <ActionCard />

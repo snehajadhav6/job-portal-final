@@ -81,7 +81,6 @@ export default function ResetPassword() {
               </div>
             )}
 
-            {/* Email */}
             <div className="flex items-center border border-[var(--border-color)] rounded-lg px-3">
               <Mail size={18} className="text-[var(--text-secondary)]" />
               <input
@@ -93,7 +92,6 @@ export default function ResetPassword() {
               />
             </div>
 
-            {/* New Password */}
             <div className="flex items-center border border-[var(--border-color)] rounded-lg px-3">
               <Lock size={18} className="text-[var(--text-secondary)]" />
               <input
@@ -106,7 +104,6 @@ export default function ResetPassword() {
               />
             </div>
 
-            {/* Confirm Password */}
             <div className="flex items-center border border-[var(--border-color)] rounded-lg px-3">
               <Lock size={18} className="text-[var(--text-secondary)]" />
               <input
@@ -119,14 +116,12 @@ export default function ResetPassword() {
               />
             </div>
 
-            {/* Error Message if passwords don't match */}
             {form.confirmPassword && form.newPassword !== form.confirmPassword && (
               <p className="text-red-500 text-sm mt-[-8px] text-center">
                 Passwords do not match. Please try again.
               </p>
             )}
 
-            {/* Button */}
             <button
               type="submit"
               disabled={isSubmitting || !form.newPassword || form.newPassword !== form.confirmPassword}
@@ -137,7 +132,6 @@ export default function ResetPassword() {
           </form>
         )}
 
-        {/* Footer */}
         {!success && (
           <p className="text-sm text-center mt-6 text-[var(--text-secondary)]">
             Remember your password?{" "}

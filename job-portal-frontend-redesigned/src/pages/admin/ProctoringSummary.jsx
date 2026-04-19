@@ -35,7 +35,6 @@ export default function ProctoringSummary() {
 
       <div style={{ background: 'white', padding: '24px', borderRadius: '8px', boxShadow: '0 2px 8px rgba(0,0,0,0.1)' }}>
         
-        {/* Header Summary */}
         <div style={{ borderBottom: '1px solid #eee', paddingBottom: '20px', marginBottom: '20px' }}>
           <h2 style={{ fontSize: '1.8rem', margin: '0 0 10px 0' }}>{report.candidateName}</h2>
           <div style={{ display: 'flex', gap: '15px' }}>
@@ -54,7 +53,6 @@ export default function ProctoringSummary() {
           </div>
         </div>
 
-        {/* Proctoring Data */}
         <div style={{ marginBottom: '30px' }}>
           <h3 style={{ borderBottom: '2px solid #1976d2', paddingBottom: '8px', display: 'inline-block' }}>Proctoring & Integrity</h3>
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px', marginTop: '15px' }}>
@@ -78,7 +76,6 @@ export default function ProctoringSummary() {
           </div>
         </div>
 
-        {/* Assessment Data */}
         <div>
           <h3 style={{ borderBottom: '2px solid #1976d2', paddingBottom: '8px', display: 'inline-block' }}>AI Interview Results</h3>
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px', marginTop: '15px' }}>
@@ -105,7 +102,6 @@ export default function ProctoringSummary() {
           </div>
         </div>
 
-        {/* AI Evaluation Summary at the END */}
         {report.summary && (
           <div style={{ marginTop: '30px' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '15px' }}>

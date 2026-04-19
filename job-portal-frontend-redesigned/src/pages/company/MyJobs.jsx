@@ -132,7 +132,6 @@ export default function MyJobs() {
   return (
     <div className="p-4 sm:p-6 bg-[var(--bg-primary)] min-h-screen">
 
-      {/* Header — stacks on mobile, side-by-side on sm+ */}
       <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3 mb-6">
         <div className="flex items-center gap-2">
           <Briefcase className="h-6 w-6 text-[var(--color-accent)]" />
@@ -164,7 +163,6 @@ export default function MyJobs() {
               key={job.id}
               className="bg-[var(--bg-secondary)] border border-[var(--border-color)] rounded-lg p-4 hover:shadow-md transition"
             >
-              {/* Card inner: info on top, actions below on mobile; side-by-side on md+ */}
               <div className="flex flex-col md:flex-row md:justify-between gap-4">
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2 mb-2 flex-wrap">
@@ -213,7 +211,6 @@ export default function MyJobs() {
                   </div>
                 </div>
 
-                {/* Action buttons — row on mobile, column on md+ */}
                 <div className="flex flex-row md:flex-col gap-2 md:ml-4 flex-wrap md:flex-nowrap">
                   <button
                     onClick={() => handleToggleStatus(job.id, job.status)}
@@ -251,7 +248,6 @@ export default function MyJobs() {
         </div>
       )}
 
-      {/* Edit Modal — top-aligned on mobile to clear the topbar, centered on sm+ */}
       {editingJob && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-start sm:items-center justify-center z-50 p-4 pt-16 sm:pt-4 overflow-y-auto">
           <div className="bg-[var(--bg-primary)] rounded-xl w-full max-w-2xl">

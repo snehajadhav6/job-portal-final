@@ -49,12 +49,10 @@ function ThemeToggle({ scrolled }) {
 
       {open && (
         <>
-          {/* Backdrop */}
           <div
             className="fixed inset-0 z-40"
             onClick={() => setOpen(false)}
           />
-          {/* Dropdown */}
           <div className="absolute right-0 top-10 z-50 bg-white dark:bg-[#1e293b] border border-[var(--border-color)] rounded-xl shadow-lg py-1 min-w-[130px]">
             {THEME_OPTIONS.map(({ value, icon: OptionIcon, label }) => (
               <button
@@ -141,7 +139,6 @@ export default function Navbar() {
       >
         <div className="max-w-7xl mx-auto flex justify-between items-center px-6 py-4">
 
-          {/* Logo */}
           <Link to="/" className="flex items-center gap-2">
             <div className="w-16 h-16 rounded-lg">
               <img src={logo} alt="Logo" className="w-full h-full object-cover" />
@@ -155,7 +152,6 @@ export default function Navbar() {
             </span>
           </Link>
 
-          {/* Desktop */}
           <div className="hidden md:flex gap-6 items-center">
             {links.map((item, index) => {
               const Icon = item.icon;
@@ -192,11 +188,9 @@ export default function Navbar() {
               </button>
             )}
 
-            {/* Theme Toggle */}
             <ThemeToggle scrolled={scrolled} />
           </div>
 
-          {/* Mobile Button */}
           <div className="md:hidden flex items-center gap-2">
             <ThemeToggle scrolled={scrolled} />
             <button
@@ -213,7 +207,6 @@ export default function Navbar() {
         </div>
       </nav>
 
-      {/* Mobile Menu */}
       {open && (
         <div className="fixed inset-0 z-40 md:hidden">
           <div

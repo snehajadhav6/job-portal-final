@@ -44,7 +44,6 @@ export default function UserDashboard() {
     return (
       <div className="flex flex-col gap-8">
         <div className="h-8 w-64 bg-[var(--bg-primary)] rounded animate-pulse" />
-        {/* 2 cols on mobile, 3 on sm, 5 on lg */}
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4">
           {[...Array(5)].map((_, i) => (
             <div key={i} className="h-24 bg-[var(--bg-primary)] rounded-xl animate-pulse border border-[var(--border-color)]" />
@@ -57,7 +56,6 @@ export default function UserDashboard() {
   return (
     <div className="flex flex-col gap-6 sm:gap-8 pb-12">
 
-      {/* Header */}
       <header>
         <h1 className="text-2xl sm:text-3xl font-bold text-[var(--color-primary)]">
           Welcome back, {user?.name || profile.name || "Candidate"}!
@@ -67,7 +65,6 @@ export default function UserDashboard() {
         </p>
       </header>
 
-      {/* Stat Cards — 2 cols mobile, 3 cols sm, 5 cols lg */}
       <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 sm:gap-4">
         {statCards.map(({ label, value, color }) => (
           <div
@@ -82,11 +79,8 @@ export default function UserDashboard() {
         ))}
       </div>
 
-      {/* Middle Row: Profile Card + Recent Applications */}
-      {/* Stacked on mobile/tablet, side-by-side on lg */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
 
-        {/* Profile Card */}
         <div className="bg-[var(--bg-primary)] rounded-xl border border-[var(--border-color)] shadow-sm p-6 flex flex-col gap-4">
           <div className="flex items-center justify-between">
             <h2 className="text-lg font-bold text-[var(--color-primary)]">My Profile</h2>
@@ -170,7 +164,6 @@ export default function UserDashboard() {
           </div>
         </div>
 
-        {/* Recent Applications */}
         <div className="lg:col-span-2 bg-[var(--bg-primary)] rounded-xl border border-[var(--border-color)] shadow-sm flex flex-col">
           <div className="p-5 border-b border-[var(--border-color)] flex items-center justify-between">
             <h2 className="text-lg font-bold text-[var(--color-primary)]">Recent Applications</h2>
@@ -228,7 +221,6 @@ export default function UserDashboard() {
         </div>
       </div>
 
-      {/* Application Funnel */}
       {stats.total_applied > 0 && (
         <div className="bg-[var(--bg-primary)] p-6 rounded-xl border border-[var(--border-color)] shadow-sm">
           <h2 className="text-base font-bold text-[var(--color-primary)] mb-4">Application Funnel</h2>

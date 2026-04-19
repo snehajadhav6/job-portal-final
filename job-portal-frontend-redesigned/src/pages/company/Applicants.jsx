@@ -41,7 +41,6 @@ const Applicants = () => {
             }));
             allApps.push(...enriched);
           } catch (e) {
-            // skip failed job
           }
         }
         setApplications(allApps);
@@ -127,11 +126,9 @@ const Applicants = () => {
         </h1>
       </div>
 
-      {/* Filter bar — 1 col mobile, 2 col tablet, 3 col desktop */}
       <div className="bg-[var(--bg-secondary)] rounded-lg border border-[var(--border-color)] p-4 mb-6">
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
 
-          {/* Search */}
           <div className="relative sm:col-span-2 lg:col-span-1">
             <Search className="absolute left-3 top-2.5 h-4 w-4 text-[var(--text-secondary)]" />
             <input
@@ -143,7 +140,6 @@ const Applicants = () => {
             />
           </div>
 
-          {/* Job filter */}
           <div className="relative">
             <Filter className="absolute left-3 top-2.5 h-4 w-4 text-[var(--text-secondary)]" />
             <select
@@ -161,7 +157,6 @@ const Applicants = () => {
             <ChevronDown className="absolute right-3 top-2.5 h-4 w-4 text-[var(--text-secondary)] pointer-events-none" />
           </div>
 
-          {/* Status filter */}
           <div className="relative">
             <Filter className="absolute left-3 top-2.5 h-4 w-4 text-[var(--text-secondary)]" />
             <select
@@ -180,7 +175,6 @@ const Applicants = () => {
           </div>
         </div>
 
-        {/* Count — always in its own row below filters */}
         <div className="mt-3 text-right text-[var(--text-secondary)] text-sm">
           Showing {filteredApplications.length} of {applications.length} applicants
         </div>
@@ -250,7 +244,6 @@ const Applicants = () => {
                   </div>
                 </div>
 
-                {/* Action buttons — wrap freely on mobile, column on desktop */}
                 <div className="flex flex-row flex-wrap md:flex-col gap-2 md:justify-start">
                   {app.resume_url && (
                     <a
@@ -289,7 +282,6 @@ const Applicants = () => {
       Fetch Result
     </button>
 
-    {/* Hire button */}
                 <button
                   onClick={() => updateStatus(app.id, "hired")}
                   className="flex items-center gap-1 px-3 py-1.5 text-sm bg-green-100 text-green-800 rounded-lg hover:bg-green-200 transition"
@@ -309,7 +301,6 @@ const Applicants = () => {
                 </div>
               </div>
 
-              {/* Show Result (Full width at bottom of card) */}
               {results[app.id] && (
                 <div className="mt-4 pt-4 border-t border-[var(--border-color)]">
                   <div className="text-sm bg-[var(--bg-primary)] border rounded p-4 shadow-sm w-full">
