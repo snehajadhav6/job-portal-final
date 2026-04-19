@@ -249,7 +249,7 @@ export default function LiveProctoring() {
                         onClick={() => initiateWebRTC(c.candidate_id)}
                         style={{ padding: "10px 20px", background: "#1976d2", color: "white", border: "none", borderRadius: "6px", cursor: "pointer", fontWeight: "600" }}
                       >
-                        👁 Watch Live
+                        Watch Live
                       </button>
                     )}
                   </div>
